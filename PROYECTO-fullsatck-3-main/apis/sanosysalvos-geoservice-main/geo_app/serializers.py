@@ -11,7 +11,8 @@ class LocationSerializer(serializers.ModelSerializer):
             'id', 'reporte_id', 'pet_id', 'usuario_id',
             'latitud', 'longitud', 'titulo', 'descripcion',
             'tipo_reporte', 'tipo_animal', 'raza_probable',
-            'color', 'tamaño', 'fecha_reporte', 'fecha_actualizacion'
+            'color', 'tamaño', 'imagen_url',
+            'fecha_reporte', 'fecha_actualizacion'
         ]
         read_only_fields = ['id', 'fecha_actualizacion']
     

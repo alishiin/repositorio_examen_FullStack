@@ -102,6 +102,12 @@ class Location(models.Model):
         blank=True,
         help_text="Tamaño para matching"
     )
+    imagen_url = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="URL de la imagen del reporte (Media Service)"
+    )
     
     # Timestamps
     fecha_reporte = models.DateTimeField(

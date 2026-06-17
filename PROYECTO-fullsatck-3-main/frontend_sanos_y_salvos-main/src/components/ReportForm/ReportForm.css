@@ -214,3 +214,51 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* ===== FASE 1A: Imagen + Match ===== */
+
+.image-preview {
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.image-preview img {
+  max-width: 250px;
+  max-height: 250px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  object-fit: cover;
+}
+
+.match-result-card {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin: 12px 0;
+  color: #78350f;
+}
+
+.match-result-card h4 {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+  color: #92400e;
+}
+
+.match-result-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.alert.alert-info {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  color: #1e3a8a;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin: 8px 0;
+}

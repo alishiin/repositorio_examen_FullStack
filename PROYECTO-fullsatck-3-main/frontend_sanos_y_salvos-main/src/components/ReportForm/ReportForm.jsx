@@ -2,13 +2,19 @@
 import { useState, useEffect } from 'react';
 import { useGeoService } from '../../hooks/useGeoService';
 import { useAuth } from '../../hooks/useAuth';
+import { useMediaUpload } from '../../hooks/useMediaUpload';
+import { useMatchAnalysis } from '../../hooks/useMatchAnalysis';
 import './ReportForm.css';
 
 export function ReportForm({ onSuccess }) {
   const { loading, error, createLocation } = useGeoService();
   const { user } = useAuth();
+  const { uploadImage, loading: uploadingMedia } = useMediaUpload();
+  const { analyzeImage, loading: analyzingMatch, result: matchResult } = useMatchAnalysis();
   const [formError, setFormError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -30,6 +36,17 @@ export function ReportForm({ onSuccess }) {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setImageFile(null);
+      setImagePreview(null);
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const validateForm = () => {
@@ -58,6 +75,17 @@ export function ReportForm({ onSuccess }) {
     }
 
     try {
+      let imagen_url = null;
+      if (imageFile) {
+        const uploadResult = await uploadImage(imageFile, formData.titulo);
+        imagen_url = uploadResult?.image_url || uploadResult?.image || null;
+
+        // Análisis Match en paralelo (no bloquea el reporte)
+        analyzeImage(`rep_${Date.now()}`, formData.tipo_animal, imageFile).catch(err => {
+          console.warn('Análisis Match falló (no crítico):', err);
+        });
+      }
+
       const result = await createLocation({
         titulo: formData.titulo,
         descripcion: formData.descripcion,
@@ -70,6 +98,7 @@ export function ReportForm({ onSuccess }) {
         longitud: parseFloat(formData.longitud),
         fecha_reporte: formData.fecha_reporte,
         usuario_id: user?.id || user?.usuario_id || user?.uid || 'anonymous',
+        imagen_url,
       });
 
       setSuccessMessage('¡Reporte creado exitosamente! Se publicará en el mapa.');
@@ -88,6 +117,8 @@ export function ReportForm({ onSuccess }) {
         zona_descripcion: 'Santiago, Chile',
         fecha_reporte: new Date().toISOString().split('T')[0],
       });
+      setImageFile(null);
+      setImagePreview(null);
 
       // Callback si existe
       if (onSuccess) {
@@ -112,8 +143,15 @@ export function ReportForm({ onSuccess }) {
 
         {/* Alert Messages */}
         {formError && <div className="alert alert-error">{formError}</div>}
-        {successMessage && <div className="alert alert-success">✅ {successMessage}</div>}
-        {error && <div className="alert alert-error">⚠️ {error}</div>}
+        {successMessage && <div className="alert alert-success"> {successMessage}</div>}
+        {error && <div className="alert alert-error"> {error}</div>}
+        {analyzingMatch && <div className="alert alert-info">⏳ Analizando imagen con IA…</div>}
+        {matchResult && (
+          <div className="match-result-card">
+            <h4> Análisis IA de la imagen</h4>
+            <p><strong>Descripción automática:</strong> {matchResult.descripcion_automatica}</p>
+          </div>
+        )}
 
         {/* Row 1: Tipo de Reporte y Tipo de Animal */}
         <div className="form-row">
@@ -223,7 +261,24 @@ export function ReportForm({ onSuccess }) {
           </div>
         </div>
 
-        {/* Row 5: Ubicación */}
+        {/* Row 5: Foto de la mascota (opcional) */}
+        <div className="form-group full-width">
+          <label htmlFor="image"> Foto de la mascota (opcional)</label>
+          <input
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="form-input"
+          />
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Vista previa" />
+            </div>
+          )}
+        </div>
+
+        {/* Row 6: Ubicación */}
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="latitud">Latitud *</label>
@@ -267,7 +322,7 @@ export function ReportForm({ onSuccess }) {
           </div>
         </div>
 
-        {/* Row 6: Fecha */}
+        {/* Row 7: Fecha */}
         <div className="form-group">
           <label htmlFor="fecha_reporte">Fecha del Reporte</label>
           <input
@@ -283,10 +338,14 @@ export function ReportForm({ onSuccess }) {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || uploadingMedia}
           className="submit-btn"
         >
-          {loading ? '⏳ Publicando...' : '📝 Publicar Reporte'}
+          {uploadingMedia
+            ? '⏳ Subiendo imagen...'
+            : loading
+              ? '⏳ Publicando...'
+              : ' Publicar Reporte'}
         </button>
 
         <p className="form-note">* Campos requeridos</p>

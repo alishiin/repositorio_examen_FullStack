@@ -260,9 +260,17 @@ export default function MapSection({ setShowMap }) {
             </div>
 
             <div className="popup-row">
-              <span className="icon">📝</span>
+              <span className="icon"></span>
               <span>{selectedLocation.descripcion}</span>
             </div>
+
+            {selectedLocation.imagen_url && (
+              <img
+                src={selectedLocation.imagen_url}
+                alt={selectedLocation.titulo}
+                className="report-popup-image"
+              />
+            )}
 
             <div className="popup-grid">
               <div className="popup-item">
