@@ -138,12 +138,55 @@ cd apis/<servicio> && source .venv/bin/activate && python manage.py migrate
 | Smoke test checklist | `entrega/05-demo/SMOKE_TEST_CHECKLIST.md` |
 | Repositorios | `entrega/repositorios.txt` |
 
-## Acceso al admin Django
-- http://localhost:8001/admin/  - Auth (crear superuser: `python manage.py createsuperuser`)
+## Panel administrativo
+
+El proyecto tiene DOS interfaces administrativas con propositos distintos:
+
+### 1. Panel admin React (http://localhost:5173/admin)
+
+UI custom para moderacion de reportes. Login: `admin` / `admin123`. Funcionalidades:
+
+- Dashboard con metricas (total perdidos, encontrados, pendientes, recuperados, actividad reciente)
+- Lista de reportes con filtros por estado de moderacion, tipo de reporte y busqueda libre
+- Detalle de cada reporte con:
+  - **Aprobar / Rechazar** reportes pendientes (workflow de moderacion del BFF)
+  - **Marcar como recuperada** una vez aprobada
+  - **Editar todos los campos**: titulo, descripcion, tipo_reporte (perdido/encontrado), tipo_animal, raza, color, tamano y estado (activo/resuelto/cerrado)
+  - **Eliminar** reporte (borra en GeoService + marca como eliminado en admin-state.json)
+  - Notas administrativas internas
+
+El panel React **NO** es el admin de Django: es una capa propia del BFF que combina datos reales de GeoService con metadata de moderacion en `backend/data/admin-state.json`.
+
+### 2. Django admin (http://localhost:<puerto>/admin/)
+
+Acceso CRUD directo a la base de datos de cada microservicio. Util para inspeccion / fixes puntuales:
+
+- http://localhost:8001/admin/  - Auth
 - http://localhost:8002/admin/  - Users
-- http://localhost:8003/admin/  - Reportes geolocalizados (cambiar estado activo/resuelto/cerrado)
+- http://localhost:8003/admin/  - Reportes geolocalizados (cambiar estado activo/resuelto/cerrado inline)
 - http://localhost:8005/admin/  - Match results y analisis IA
 - http://localhost:8007/admin/  - Notificaciones
+
+Login en cualquiera: `admin` / `admin123` (creado automaticamente por `./start-all.sh`).
+
+### Diferencia entre los campos de estado
+
+El proyecto tiene **tres** dimensiones de estado que conviene no confundir:
+
+| Campo | Donde vive | Valores | Proposito |
+|---|---|---|---|
+| `tipo_reporte` | GeoService DB (Location) | perdido / encontrado | Clasificacion original del reporte |
+| `estado` | GeoService DB (Location) | activo / resuelto / cerrado | Resolucion del caso (vigente / mascota devuelta / cerrado) |
+| `status` | BFF `admin-state.json` | pending / approved / rejected / recovered | Workflow de moderacion administrativa |
+
+Cuando una mascota perdida aparece, el admin tiene dos opciones equivalentes:
+
+1. Cambiar `tipo_reporte` de `perdido` a `encontrado` (re-clasificar el reporte)
+2. Cambiar `estado` de `activo` a `resuelto` (cerrar el caso sin re-clasificar)
+
+Ambas se pueden hacer desde el modal de edicion del panel React o desde el Django admin de GeoService.
+
+
 
 ## Swagger / API docs
 - BFF Swagger UI: http://localhost:5000/api-docs

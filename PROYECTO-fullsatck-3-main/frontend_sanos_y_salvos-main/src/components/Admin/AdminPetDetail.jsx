@@ -10,6 +10,11 @@ export default function AdminPetDetail({ petId, onBack }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    titulo: '', descripcion: '', tipo_reporte: 'perdido', tipo_animal: '',
+    raza_probable: '', color: '', 'tamaño': '', estado: 'activo'
+  });
 
   useEffect(() => {
     fetchPetDetail();
@@ -22,6 +27,16 @@ export default function AdminPetDetail({ petId, onBack }) {
       if (response.success) {
         setPet(response.data);
         setNotes(response.data.notes || '');
+        setEditForm({
+          titulo: response.data.location?.area || '',
+          descripcion: response.data.description || '',
+          tipo_reporte: response.data.reportType === 'missing' ? 'perdido' : 'encontrado',
+          tipo_animal: response.data.type || '',
+          raza_probable: response.data.breed === 'Desconocida' ? '' : (response.data.breed || ''),
+          color: response.data.color === 'No especificado' ? '' : (response.data.color || ''),
+          'tamaño': response.data['tamaño'] || '',
+          estado: response.data.estado || 'activo'
+        });
       }
     } catch (err) {
       setError('Error al cargar detalles');
@@ -76,9 +91,40 @@ export default function AdminPetDetail({ petId, onBack }) {
   const handleSaveNotes = async () => {
     try {
       await adminAPI.updatePetNotes(petId, notes);
-      alert('📝 Notas guardadas');
+      alert(' Notas guardadas');
     } catch (err) {
       alert('Error al guardar notas');
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    setActionLoading(true);
+    try {
+      await adminAPI.updatePet(petId, editForm);
+      await fetchPetDetail();
+      setShowEditModal(false);
+      alert('Reporte actualizado correctamente');
+    } catch (err) {
+      alert('Error al actualizar reporte: ' + (err.message || ''));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(
+      '¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer.'
+    );
+    if (!confirmed) return;
+    setActionLoading(true);
+    try {
+      await adminAPI.deletePet(petId);
+      alert('Reporte eliminado');
+      onBack();
+    } catch (err) {
+      alert('Error al eliminar reporte');
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -124,6 +170,14 @@ export default function AdminPetDetail({ petId, onBack }) {
             <div className="info-item">
               <span className="label">Vacunado:</span>
               <span className="value">{pet.vaccinated ? 'Sí' : 'No'}</span>
+            </div>
+            <div className="info-item">
+              <span className="label">Estado mascota:</span>
+              <span className={`value estado-${pet.estado || 'activo'}`}>
+                {pet.estado === 'resuelto' && 'Resuelto (devuelto)'}
+                {pet.estado === 'cerrado' && 'Cerrado'}
+                {(!pet.estado || pet.estado === 'activo') && 'Activo (vigente)'}
+              </span>
             </div>
           </div>
         </div>
@@ -256,6 +310,27 @@ export default function AdminPetDetail({ petId, onBack }) {
             </div>
           </section>
         )}
+
+        {/* Editar / Eliminar — siempre disponibles */}
+        <section className="actions-section">
+          <h3>Editar / Eliminar</h3>
+          <div className="actions-grid">
+            <button
+              className="action-btn edit"
+              onClick={() => setShowEditModal(true)}
+              disabled={actionLoading}
+            >
+              Editar Reporte
+            </button>
+            <button
+              className="action-btn delete"
+              onClick={handleDelete}
+              disabled={actionLoading}
+            >
+              Eliminar Reporte
+            </button>
+          </div>
+        </section>
       </div>
 
       {/* Modal de Rechazo */}
@@ -282,6 +357,117 @@ export default function AdminPetDetail({ petId, onBack }) {
                 disabled={!rejectReason || actionLoading}
               >
                 Confirmar Rechazo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edición */}
+      {showEditModal && (
+        <div className="modal-overlay">
+          <div className="modal modal-edit">
+            <h3>Editar Reporte</h3>
+
+            <label>
+              Título / Zona
+              <input
+                type="text"
+                value={editForm.titulo}
+                onChange={e => setEditForm({ ...editForm, titulo: e.target.value })}
+              />
+            </label>
+
+            <label>
+              Descripción
+              <textarea
+                rows="3"
+                value={editForm.descripcion}
+                onChange={e => setEditForm({ ...editForm, descripcion: e.target.value })}
+              />
+            </label>
+
+            <label>
+              Tipo de reporte
+              <select
+                value={editForm.tipo_reporte}
+                onChange={e => setEditForm({ ...editForm, tipo_reporte: e.target.value })}
+              >
+                <option value="perdido">Perdido</option>
+                <option value="encontrado">Encontrado</option>
+              </select>
+            </label>
+
+            <label>
+              Estado
+              <select
+                value={editForm.estado}
+                onChange={e => setEditForm({ ...editForm, estado: e.target.value })}
+              >
+                <option value="activo">Activo (vigente)</option>
+                <option value="resuelto">Resuelto (devuelto)</option>
+                <option value="cerrado">Cerrado</option>
+              </select>
+            </label>
+
+            <label>
+              Tipo de animal
+              <select
+                value={editForm.tipo_animal}
+                onChange={e => setEditForm({ ...editForm, tipo_animal: e.target.value })}
+              >
+                <option value="">Selecciona</option>
+                <option value="perro">Perro</option>
+                <option value="gato">Gato</option>
+                <option value="otro">Otro</option>
+              </select>
+            </label>
+
+            <label>
+              Raza
+              <input
+                type="text"
+                value={editForm.raza_probable}
+                onChange={e => setEditForm({ ...editForm, raza_probable: e.target.value })}
+              />
+            </label>
+
+            <label>
+              Color
+              <input
+                type="text"
+                value={editForm.color}
+                onChange={e => setEditForm({ ...editForm, color: e.target.value })}
+              />
+            </label>
+
+            <label>
+              Tamaño
+              <select
+                value={editForm['tamaño']}
+                onChange={e => setEditForm({ ...editForm, 'tamaño': e.target.value })}
+              >
+                <option value="">Selecciona</option>
+                <option value="pequeño">Pequeño</option>
+                <option value="mediano">Mediano</option>
+                <option value="grande">Grande</option>
+              </select>
+            </label>
+
+            <div className="modal-actions">
+              <button
+                className="btn btn-cancel"
+                onClick={() => setShowEditModal(false)}
+                disabled={actionLoading}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-confirm"
+                onClick={handleSaveEdit}
+                disabled={actionLoading}
+              >
+                Guardar Cambios
               </button>
             </div>
           </div>

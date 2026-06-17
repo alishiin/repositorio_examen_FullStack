@@ -141,6 +141,12 @@ export const adminAPI = {
   deletePet: (id) => 
     apiCall(`/admin/pets/${id}`, { method: 'DELETE' }),
   
+  updatePet: (id, updates) => 
+    apiCall(`/admin/pets/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates)
+    }),
+  
   updatePetNotes: (id, notes) => 
     apiCall(`/admin/pets/${id}/notes`, {
       method: 'PUT',

@@ -72,6 +72,24 @@ const deleteFromGeoService = async (reporteId) => {
   }
 };
 
+const patchToGeoService = async (reporteId, updates) => {
+  try {
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/${reporteId}/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`GeoService PATCH error ${response.status}: ${errorText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(`Error PATCH GeoService: ${error.message}`);
+    throw error;
+  }
+};
+
 // Consultar User Service para obtener datos de usuario
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:8002';
 const userCache = {}; // Cache simple para evitar llamadas repetidas
@@ -285,6 +303,8 @@ router.get('/pets', isAdmin, async (req, res) => {
         latitude: report.latitud,
         longitude: report.longitud,
         notes: reportState.notes || '',
+        estado: report.estado || 'activo',
+        tamaño: report.tamaño || report.tamano || '',
         clinics: []
       };
     });
@@ -377,6 +397,8 @@ router.get('/pets/:id', isAdmin, async (req, res) => {
       reportDate: report.fecha_reporte || new Date().toISOString(),
       clinics: [],
       notes: reportState.notes || '',
+      estado: report.estado || 'activo',
+      tamaño: report.tamaño || report.tamano || '',
       attachments: []
     };
 
@@ -490,6 +512,63 @@ router.put('/pets/:id/recover', isAdmin, (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al marcar como recuperada'
+    });
+  }
+});
+
+// PUT /api/admin/pets/:id - Actualizar campos editables del reporte en GeoService
+router.put('/pets/:id', isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const allowedFields = [
+      'titulo', 'descripcion', 'tipo_reporte', 'tipo_animal',
+      'raza_probable', 'color', 'tamaño', 'tamano', 'estado'
+    ];
+
+    // Filtrar solo campos permitidos del body
+    const updates = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        // El modelo usa 'tamaño' (con tilde). Si llega 'tamano', lo normalizamos.
+        const targetField = field === 'tamano' ? 'tamaño' : field;
+        updates[targetField] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No se proporcionaron campos para actualizar'
+      });
+    }
+
+    // Validar enums
+    if (updates.tipo_reporte && !['perdido', 'encontrado'].includes(updates.tipo_reporte)) {
+      return res.status(400).json({
+        success: false,
+        message: 'tipo_reporte debe ser "perdido" o "encontrado"'
+      });
+    }
+    if (updates.estado && !['activo', 'resuelto', 'cerrado'].includes(updates.estado)) {
+      return res.status(400).json({
+        success: false,
+        message: 'estado debe ser "activo", "resuelto" o "cerrado"'
+      });
+    }
+
+    const updated = await patchToGeoService(id, updates);
+
+    res.json({
+      success: true,
+      message: 'Reporte actualizado correctamente',
+      data: updated
+    });
+  } catch (error) {
+    console.error('Error en PUT /pets/:id:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el reporte',
+      error: error.message
     });
   }
 });

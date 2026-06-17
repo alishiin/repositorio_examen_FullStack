@@ -297,6 +297,60 @@
   background: #1F5F8A;
 }
 
+.action-btn.edit {
+  background: #3498db;
+  color: white;
+}
+
+.action-btn.edit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+  background: #2980b9;
+}
+
+.action-btn.delete {
+  background: #e74c3c;
+  color: white;
+}
+
+.action-btn.delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+  background: #c0392b;
+}
+
+.estado-activo { color: #27ae60; font-weight: 600; }
+.estado-resuelto { color: #3498db; font-weight: 600; }
+.estado-cerrado { color: #95a5a6; font-weight: 600; }
+
+.modal-edit {
+  max-height: 85vh;
+  overflow-y: auto;
+  width: 90%;
+  max-width: 600px;
+}
+
+.modal-edit label {
+  display: block;
+  margin: 12px 0;
+  font-weight: 600;
+  color: #2C3E50;
+}
+
+.modal-edit input,
+.modal-edit textarea,
+.modal-edit select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-weight: normal;
+  font-size: 14px;
+  font-family: inherit;
+}
+
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
