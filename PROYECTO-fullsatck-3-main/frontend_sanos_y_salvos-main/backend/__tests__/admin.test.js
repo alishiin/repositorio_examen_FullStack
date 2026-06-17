@@ -14,7 +14,7 @@ describe('POST /api/admin/login', () => {
   test('200 con admin/admin', async () => {
     const res = await request(app)
       .post('/api/admin/login')
-      .send({ username: 'admin', password: 'admin' });
+      .send({ username: 'admin', password: 'admin123' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.token).toBe('admin-token-123');

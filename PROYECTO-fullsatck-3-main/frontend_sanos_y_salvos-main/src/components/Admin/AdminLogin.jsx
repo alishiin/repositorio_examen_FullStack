@@ -77,7 +77,7 @@ export default function AdminLogin({ onLoginSuccess }) {
           <div className="demo-credentials">
             <p>📝 Demo Credentials:</p>
             <small>Usuario: <strong>admin</strong></small><br />
-            <small>Contraseña: <strong>admin</strong></small>
+            <small>Contraseña: <strong>admin123</strong></small>
           </div>
         </form>
       </div>

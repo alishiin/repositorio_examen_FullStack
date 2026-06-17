@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 // Credenciales admin hardcodeadas (en producción usar base de datos)
 const ADMIN_CREDENTIALS = {
   username: 'admin',
-  password: 'admin'
+  password: 'admin123'
 };
 
 // Ruta para almacenar estados de reportes
@@ -47,7 +47,7 @@ const saveAdminState = (state) => {
 };
 
 // Consultar geoservice
-const GEO_SERVICE_URL = process.env.GEO_SERVICE_URL || 'http://localhost:8001/api';
+const GEO_SERVICE_URL = process.env.GEO_SERVICE_URL || 'http://localhost:8003/api';
 
 const fetchFromGeoService = async (endpoint) => {
   try {
@@ -145,7 +145,7 @@ router.post('/login', (req, res) => {
 router.get('/dashboard', isAdmin, async (req, res) => {
   try {
     // Obtener todos los reportes de geoservice
-    const locationData = await fetchFromGeoService('/ubicaciones/');
+    const locationData = await fetchFromGeoService('/ubicaciones/?page_size=100');
     const adminState = getAdminState();
     
     if (!locationData || !locationData.results) {
@@ -182,7 +182,7 @@ router.get('/dashboard', isAdmin, async (req, res) => {
 
     for (const report of allReports) {
       const reportState = adminState.reportStates[report.id] || { status: 'pending' };
-      const isMissing = report.tipo_reporte === 'perdida';
+      const isMissing = report.tipo_reporte === 'perdido';
       
       if (isMissing) totalMissing++;
       else totalFound++;
@@ -245,7 +245,7 @@ router.get('/pets', isAdmin, async (req, res) => {
     const { status = 'all', type = 'all', search = '' } = req.query;
 
     // Obtener reportes reales de geoservice
-    const locationData = await fetchFromGeoService('/ubicaciones/');
+    const locationData = await fetchFromGeoService('/ubicaciones/?page_size=100');
     const adminState = getAdminState();
 
     if (!locationData || !locationData.results) {
@@ -264,7 +264,7 @@ router.get('/pets', isAdmin, async (req, res) => {
     // Obtener datos de usuarios en paralelo
     const petsPromises = filteredReports.map(async (report) => {
       const reportState = adminState.reportStates[report.id] || { status: 'pending', notes: '' };
-      const isMissing = report.tipo_reporte === 'perdida';
+      const isMissing = report.tipo_reporte === 'perdido';
       const userData = await fetchUserData(report.usuario_id);
 
       return {
@@ -345,7 +345,7 @@ router.get('/pets/:id', isAdmin, async (req, res) => {
 
     const report = locationData.results ? locationData.results[0] : locationData;
     const reportState = adminState.reportStates[id] || { status: 'pending', notes: '' };
-    const isMissing = report.tipo_reporte === 'perdida';
+    const isMissing = report.tipo_reporte === 'perdido';
     
     // Obtener datos reales del usuario
     const userData = await fetchUserData(report.usuario_id);
