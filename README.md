@@ -125,6 +125,11 @@ Abre [http://localhost:5173](http://localhost:5173) en el navegador.
 | MediaService | 8006 |
 | NotificationService | 8007 |
 
+> **Nota de integracion**: el Frontend habla **directo** con AuthService (`:8001`)
+> y UserService (`:8002`). Los demas microservicios se acceden **via BFF**
+> (`:5000`) por el patron API Gateway. Esto es temporal hasta que las rutas
+> `/api/auth/*` y `/api/pets/*` del BFF dejen de ser stubs locales.
+
 ## Documentacion del entregable
 
 | Documento | Ubicacion |

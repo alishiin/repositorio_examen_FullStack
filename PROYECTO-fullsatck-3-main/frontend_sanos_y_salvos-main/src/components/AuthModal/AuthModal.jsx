@@ -19,7 +19,7 @@ export default function AuthModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
 
   const USER_API = import.meta.env.VITE_USER_SERVICE_URL || "http://127.0.0.1:8002"
-  const AUTH_API = import.meta.env.VITE_AUTH_SERVICE_URL || "http://127.0.0.1:8003"
+  const AUTH_API = import.meta.env.VITE_AUTH_SERVICE_URL || "http://127.0.0.1:8001"
 
   // Validar RUT chileno (8-9 dígitos: 7-8 dígitos base + 1 dígito verificador)
   const validateRUT = (rut) => {

@@ -7,7 +7,7 @@ export default function LoginSection({ setShowLogin }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = 'http://localhost:8001';  // ← SIN /api
+  const API_BASE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8001';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
