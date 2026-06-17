@@ -1,0 +1,232 @@
+### Sanos y Salvos - Coleccion API completa
+### Formato VS Code REST Client (extension humao.rest-client)
+### Equipo: Yamil Apablaza, Alvaro Del Canto, Santiago Vargas
+
+@bff = http://localhost:5000/api
+@auth_service = http://localhost:8001
+@user_service = http://localhost:8002
+@geo_service = http://localhost:8003/api
+@chat_service = http://localhost:8004
+@match_service = http://localhost:8005
+@media_service = http://localhost:8006
+@notif_service = http://localhost:8007
+
+### ============================================================
+### AUTH SERVICE (puerto 8001)
+### ============================================================
+
+### Login (obtener tokens JWT)
+# @name login
+POST {{auth_service}}/api/login/
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "secret123"
+}
+
+### Refresh token
+POST {{auth_service}}/api/token/refresh/
+Content-Type: application/json
+
+{
+  "refresh": "{{login.response.body.refresh}}"
+}
+
+### Verificar token
+POST {{auth_service}}/api/token/verify/
+Content-Type: application/json
+
+{
+  "token": "{{login.response.body.access}}"
+}
+
+### ============================================================
+### USER SERVICE (puerto 8002)
+### ============================================================
+
+### Registrar usuario
+POST {{user_service}}/api/users/
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "full_name": "Alice Perez",
+  "rut": "17.685.439-5",
+  "phone": "+56987654321",
+  "commune": "Providencia",
+  "address": "Av. Siempre Viva 742",
+  "password": "secret123"
+}
+
+### Listar usuarios
+GET {{user_service}}/api/users/
+Authorization: Bearer {{login.response.body.access}}
+
+### Detalle de usuario por ID
+GET {{user_service}}/api/users/1/
+Authorization: Bearer {{login.response.body.access}}
+
+### Actualizar usuario
+PATCH {{user_service}}/api/users/1/
+Authorization: Bearer {{login.response.body.access}}
+Content-Type: application/json
+
+{
+  "phone": "+56912345678"
+}
+
+### ============================================================
+### GEO SERVICE (puerto 8003)
+### ============================================================
+
+### Listar todas las ubicaciones (paginado DRF)
+GET {{geo_service}}/ubicaciones/
+
+### Listar con filtros
+GET {{geo_service}}/ubicaciones/?tipo_animal=perro&tipo_reporte=perdido
+
+### Crear reporte (con URL de imagen desde MediaService)
+POST {{geo_service}}/ubicaciones/
+Content-Type: application/json
+
+{
+  "reporte_id": "rep_001",
+  "pet_id": "pet_001",
+  "usuario_id": 1,
+  "latitud": -33.4569,
+  "longitud": -70.6483,
+  "tipo_reporte": "perdido",
+  "tipo_animal": "perro",
+  "raza_probable": "Labrador",
+  "color": "Negro",
+  "titulo": "Perdi a Toby cerca del parque",
+  "descripcion": "Collar azul, microchip ABC123",
+  "fecha_reporte": "2026-06-17T10:00:00Z",
+  "imagen_url": "http://localhost:8006/media/pets_uploaded/abc.jpg"
+}
+
+### Buscar reportes cercanos (10km a la redonda)
+POST {{geo_service}}/ubicaciones/buscar_cercanos/
+Content-Type: application/json
+
+{
+  "latitud": -33.4569,
+  "longitud": -70.6483,
+  "radio_km": 10,
+  "tipo_reporte": "ambos"
+}
+
+### Obtener reportes cercanos a un reporte especifico (tipo opuesto)
+GET {{geo_service}}/ubicaciones/1/obtener_cercanos/?radio=20
+
+### Estadisticas geograficas
+POST {{geo_service}}/ubicaciones/stats_geografico/
+
+### ============================================================
+### MATCH SERVICE (puerto 8005) - via BFF (proxy)
+### ============================================================
+
+### Analizar imagen con Gemini (multipart) - via BFF
+POST {{bff}}/match/analyze
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="reporte_id"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="pet_type"
+
+perro
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="toby.jpg"
+Content-Type: image/jpeg
+
+< ./toby.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ============================================================
+### MEDIA SERVICE (puerto 8006) - via BFF (proxy)
+### ============================================================
+
+### Upload de imagen de mascota
+POST {{bff}}/media/upload
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="image"; filename="toby.jpg"
+Content-Type: image/jpeg
+
+< ./toby.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Toby el labrador
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Listar imagenes subidas
+GET {{media_service}}/api/images/
+
+### ============================================================
+### NOTIFICATION SERVICE (puerto 8007) - via BFF
+### ============================================================
+
+### Listar notificaciones del usuario
+GET {{bff}}/notifications/?user_id=1
+
+### Marcar notificacion como leida
+POST {{bff}}/notifications/5/mark-read
+
+### Disparar notificacion de match (BFF -> NotificationService)
+POST {{bff}}/notifications/trigger-match
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "user_email": "alice@example.com",
+  "match_id": 99,
+  "pet_name": "Toby"
+}
+
+### ============================================================
+### CHAT SERVICE (puerto 8004) - via BFF
+### ============================================================
+
+### Config WS del chat (URL del WebSocket)
+GET {{bff}}/chat/config
+
+### Validar acceso a sala
+GET {{bff}}/chat/room/perros-perdidos
+
+### WebSocket (no se puede via REST Client, usar wscat o el frontend):
+###   ws://localhost:8004/ws/chat/perros-perdidos/
+
+### ============================================================
+### BFF - SALUD Y AUTH
+### ============================================================
+
+### Health check del BFF
+GET {{bff}}/health
+
+### Login via BFF (stub)
+POST {{bff}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "secret123"
+}
+
+### Admin login (admin/admin para dev)
+POST {{bff}}/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+### Dashboard admin (requiere token admin)
+GET {{bff}}/admin/dashboard
+Authorization: Bearer admin-token-123

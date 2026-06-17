@@ -1,0 +1,219 @@
+{
+  "info": {
+    "_postman_id": "sanos-y-salvos-parcial-3",
+    "name": "Sanos y Salvos - Parcial 3",
+    "description": "Coleccion completa de la API de Sanos y Salvos (BFF + 7 microservicios Django). Equipo: Yamil Apablaza, Alvaro Del Canto, Santiago Vargas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "bff", "value": "http://localhost:5000/api" },
+    { "key": "auth_service", "value": "http://localhost:8001" },
+    { "key": "user_service", "value": "http://localhost:8002" },
+    { "key": "geo_service", "value": "http://localhost:8003/api" },
+    { "key": "chat_service", "value": "http://localhost:8004" },
+    { "key": "match_service", "value": "http://localhost:8005" },
+    { "key": "media_service", "value": "http://localhost:8006" },
+    { "key": "notif_service", "value": "http://localhost:8007" },
+    { "key": "access_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{auth_service}}/api/login/", "host": ["{{auth_service}}"], "path": ["api", "login", ""] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"secret123\"\n}" }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{auth_service}}/api/token/refresh/", "host": ["{{auth_service}}"], "path": ["api", "token", "refresh", ""] },
+            "body": { "mode": "raw", "raw": "{\n  \"refresh\": \"<paste-refresh-token>\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{user_service}}/api/users/", "host": ["{{user_service}}"], "path": ["api", "users", ""] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"alice@example.com\",\n  \"full_name\": \"Alice Perez\",\n  \"rut\": \"17.685.439-5\",\n  \"phone\": \"+56987654321\",\n  \"commune\": \"Providencia\",\n  \"address\": \"Av. Siempre Viva 742\",\n  \"password\": \"secret123\"\n}" }
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{user_service}}/api/users/", "host": ["{{user_service}}"], "path": ["api", "users", ""] }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{user_service}}/api/users/1/", "host": ["{{user_service}}"], "path": ["api", "users", "1", ""] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Geo",
+      "item": [
+        {
+          "name": "List Locations",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{geo_service}}/ubicaciones/", "host": ["{{geo_service}}"], "path": ["ubicaciones", ""] }
+          }
+        },
+        {
+          "name": "Create Location",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{geo_service}}/ubicaciones/", "host": ["{{geo_service}}"], "path": ["ubicaciones", ""] },
+            "body": { "mode": "raw", "raw": "{\n  \"reporte_id\": \"rep_001\",\n  \"pet_id\": \"pet_001\",\n  \"usuario_id\": 1,\n  \"latitud\": -33.4569,\n  \"longitud\": -70.6483,\n  \"tipo_reporte\": \"perdido\",\n  \"tipo_animal\": \"perro\",\n  \"raza_probable\": \"Labrador\",\n  \"color\": \"Negro\",\n  \"titulo\": \"Perdi a Toby\",\n  \"descripcion\": \"Collar azul\",\n  \"fecha_reporte\": \"2026-06-17T10:00:00Z\",\n  \"imagen_url\": \"http://localhost:8006/media/pets_uploaded/abc.jpg\"\n}" }
+          }
+        },
+        {
+          "name": "Buscar Cercanos",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{geo_service}}/ubicaciones/buscar_cercanos/", "host": ["{{geo_service}}"], "path": ["ubicaciones", "buscar_cercanos", ""] },
+            "body": { "mode": "raw", "raw": "{\n  \"latitud\": -33.4569,\n  \"longitud\": -70.6483,\n  \"radio_km\": 10,\n  \"tipo_reporte\": \"ambos\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Match (via BFF)",
+      "item": [
+        {
+          "name": "Analyze Image with Gemini",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{bff}}/match/analyze", "host": ["{{bff}}"], "path": ["match", "analyze"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "reporte_id", "value": "1", "type": "text" },
+                { "key": "pet_type", "value": "perro", "type": "text" },
+                { "key": "image", "type": "file", "src": [] }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Media (via BFF)",
+      "item": [
+        {
+          "name": "Upload Pet Image",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{bff}}/media/upload", "host": ["{{bff}}"], "path": ["media", "upload"] },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "image", "type": "file", "src": [] },
+                { "key": "description", "value": "Toby el labrador", "type": "text" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications (via BFF)",
+      "item": [
+        {
+          "name": "List Notifications",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{bff}}/notifications/?user_id=1", "host": ["{{bff}}"], "path": ["notifications", ""], "query": [{ "key": "user_id", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{bff}}/notifications/5/mark-read", "host": ["{{bff}}"], "path": ["notifications", "5", "mark-read"] }
+          }
+        },
+        {
+          "name": "Trigger Match Notification",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{bff}}/notifications/trigger-match", "host": ["{{bff}}"], "path": ["notifications", "trigger-match"] },
+            "body": { "mode": "raw", "raw": "{\n  \"user_id\": 1,\n  \"user_email\": \"alice@example.com\",\n  \"match_id\": 99,\n  \"pet_name\": \"Toby\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat (via BFF)",
+      "item": [
+        {
+          "name": "Get Chat Config",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{bff}}/chat/config", "host": ["{{bff}}"], "path": ["chat", "config"] }
+          }
+        },
+        {
+          "name": "Validate Room Access",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{bff}}/chat/room/perros-perdidos", "host": ["{{bff}}"], "path": ["chat", "room", "perros-perdidos"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "BFF Health & Admin",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{bff}}/health", "host": ["{{bff}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{bff}}/admin/login", "host": ["{{bff}}"], "path": ["admin", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}" }
+          }
+        },
+        {
+          "name": "Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer admin-token-123" }],
+            "url": { "raw": "{{bff}}/admin/dashboard", "host": ["{{bff}}"], "path": ["admin", "dashboard"] }
+          }
+        }
+      ]
+    }
+  ]
+}

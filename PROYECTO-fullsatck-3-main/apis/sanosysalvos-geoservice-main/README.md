@@ -261,21 +261,22 @@ POST /api/v1/geozone/
 GET /api/v1/geozone/{id}/reportes_en_zona/
 ```
 
-## 🧪 Testing
+##  Testing
 
-Ejecutar tests:
+Ejecutar tests con cobertura (Parcial 3):
+```bash
+pytest --cov --cov-report=html
+```
+**Cobertura actual: 87.1% / 56 tests pasados** (25 originales + 31 nuevos en `geo_app/tests/test_extra_coverage.py`).
+
+Reporte HTML en `./htmlcov/index.html`. Cubre:
+- `LocationViewSet` (list, buscar_cercanos, obtener_cercanos, stats_geografico, create).
+- `calcular_distancia` (haversine).
+- `UserServiceClient` + `PetServiceClient` (con mock de `safe_request` y Circuit Breaker).
+
+Legacy:
 ```bash
 python manage.py test geo_app.tests
-```
-
-Con verbosidad:
-```bash
-python manage.py test geo_app.tests --verbosity=2
-```
-
-Tests específicos:
-```bash
-python manage.py test geo_app.tests.LocationAPITest.test_buscar_cercanos
 ```
 
 ## 📊 Modelos de Datos

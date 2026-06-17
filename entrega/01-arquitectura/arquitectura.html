@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Sanos y Salvos - Arquitectura</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { color: #0071ce; }
+    .mermaid { background: #f9fafb; padding: 1rem; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Sanos y Salvos - Diagrama de Arquitectura</h1>
+  <p>Parcial 3 - Desarrollo Fullstack III. Renderizado con Mermaid.js desde CDN.</p>
+  <div class="mermaid">
+graph TB
+    User["Usuario / Navegador"]
+
+    subgraph Frontend["Frontend (React + Vite, puerto 5173)"]
+        React["React PWA<br/>Components, Hooks, Pages<br/>Vitest+RTL: 98.6% coverage"]
+    end
+
+    subgraph BFF["BFF (Node.js Express, puerto 5000)"]
+        BFFApp["Express + Swagger<br/>Jest+Supertest: 96.2% coverage<br/>Proxies a 7 microservicios"]
+    end
+
+    subgraph Microservicios["Microservicios (Django + DRF)"]
+        Auth["AuthService<br/>:8001<br/>SimpleJWT<br/>100% cov"]
+        Usr["UserService<br/>:8002<br/>Custom User + RUT<br/>100% cov"]
+        Geo["GeoService<br/>:8003<br/>PostGIS + Mapbox<br/>87.1% cov"]
+        Chat["ChatService<br/>:8004<br/>Django Channels WS<br/>94.6% cov"]
+        Match["MatchService<br/>:8005<br/>Google Gemini AI<br/>100% cov"]
+        Media["MediaService<br/>:8006<br/>Pillow Upload<br/>97.6% cov"]
+        Notif["NotificationService<br/>:8007<br/>Notificaciones in-app<br/>99.1% cov"]
+    end
+
+    subgraph Externos["APIs Externas"]
+        Gemini["Google Gemini API<br/>(Analisis IA)"]
+        Mapbox["Mapbox<br/>(Tiles + Geocoding)"]
+        DogAPI["The Dog API<br/>(Catalogo razas)"]
+    end
+
+    subgraph DB["Persistencia"]
+        SQLite["SQLite (Dev)<br/>PostgreSQL+PostGIS (Prod)"]
+    end
+
+    User -->|HTTP/WS| React
+    React -->|REST + WS| BFFApp
+    BFFApp -.->|HTTP proxy| Auth
+    BFFApp -.->|HTTP proxy| Usr
+    BFFApp -.->|HTTP proxy| Geo
+    BFFApp -.->|HTTP/WS| Chat
+    BFFApp -.->|HTTP proxy| Match
+    BFFApp -.->|HTTP proxy| Media
+    BFFApp -.->|HTTP proxy| Notif
+
+    Match -->|API call| Gemini
+    React -->|Tiles| Mapbox
+    React -->|Razas| DogAPI
+
+    Auth --> SQLite
+    Usr --> SQLite
+    Geo --> SQLite
+    Chat --> SQLite
+    Match --> SQLite
+    Media --> SQLite
+    Notif --> SQLite
+
+    classDef frontStyle fill:#61dafb,stroke:#000,color:#000
+    classDef bffStyle fill:#68a063,stroke:#000,color:#fff
+    classDef msStyle fill:#092e20,stroke:#fff,color:#fff
+    classDef extStyle fill:#fbbf24,stroke:#000
+    classDef dbStyle fill:#336791,stroke:#000,color:#fff
+
+    class React frontStyle
+    class BFFApp bffStyle
+    class Auth,Usr,Geo,Chat,Match,Media,Notif msStyle
+    class Gemini,Mapbox,DogAPI extStyle
+    class SQLite dbStyle
+  </div>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "default" });
+  </script>
+</body>
+</html>

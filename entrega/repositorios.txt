@@ -1,0 +1,45 @@
+# Repositorios GitHub - Sanos y Salvos Parcial 3
+# Equipo: Yamil Apablaza, Alvaro Del Canto, Santiago Vargas
+# Asignatura: Desarrollo Fullstack III (DSY1106)
+
+# ============================================================
+# Repo principal (monorepo)
+# ============================================================
+# [Pegar URL principal cuando se publique en GitHub]
+# Ejemplo: https://github.com/<usuario>/sanos-y-salvos-parcial-3
+
+# ============================================================
+# Si se publican en repos separados (recomendado para defensa):
+# ============================================================
+
+# --- Frontend ---
+# Frontend React (Vite + Mapbox + Leaflet):
+#   [URL]
+
+# --- BFF ---
+# BFF Node Express (puerto 5000, proxy a microservicios):
+#   [URL]
+
+# --- Microservicios Django ---
+# AuthService (JWT - puerto 8001):
+#   [URL]
+# UserService (CRUD usuarios con RUT chileno - puerto 8002):
+#   [URL]
+# GeoService (geolocalizacion + busqueda proximidad - puerto 8003):
+#   [URL]
+# ChatService (WebSocket Django Channels - puerto 8004):
+#   [URL]
+# MatchService (analisis IA Gemini - puerto 8005):
+#   [URL]
+# MediaService (upload imagenes - puerto 8006):
+#   [URL]
+# NotificationService (notificaciones in-app - puerto 8007):
+#   [URL]
+
+# ============================================================
+# Documentacion adicional
+# ============================================================
+# Diagrama de arquitectura:  entrega/01-arquitectura/arquitectura.md
+# Estrategia de persistencia: entrega/02-persistencia/persistencia.md
+# Informe de pruebas:         entrega/03-pruebas/informe-pruebas.md
+# Coleccion de API:           entrega/04-api-collection/
