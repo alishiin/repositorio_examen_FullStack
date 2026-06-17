@@ -105,6 +105,12 @@
   opacity: 0.85;
 }
 
+.chat-bubble .chat-time {
+  font-weight: 400;
+  opacity: 0.6;
+  font-size: 0.66rem;
+}
+
 .chat-bubble p {
   margin: 0;
   font-size: 0.93rem;

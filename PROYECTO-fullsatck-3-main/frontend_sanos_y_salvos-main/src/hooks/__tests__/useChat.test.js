@@ -82,6 +82,53 @@ describe('useChat', () => {
     expect(result.current.messages[0]).toEqual({ message: 'hola', sender: 'alice' });
   });
 
+  test('mensaje type:history reemplaza el state con el array', async () => {
+    const mockWs = new MockWS();
+    chatServiceClient.validateRoomAccess.mockResolvedValue({ authorized: true });
+    chatServiceClient.connectToRoom.mockReturnValue(mockWs);
+    const { result } = renderHook(() => useChat('sala-1'));
+    await waitFor(() => expect(chatServiceClient.connectToRoom).toHaveBeenCalled());
+    act(() => mockWs._triggerOpen());
+
+    // Primero llega un mensaje normal...
+    act(() => mockWs._triggerMessage({ message: 'previo', sender: 'x' }));
+    expect(result.current.messages).toHaveLength(1);
+
+    // ...luego el historial: debe REEMPLAZAR, no hacer append.
+    const history = [
+      { message: 'm1', sender: 'a', timestamp: '2026-01-01T10:00:00Z' },
+      { message: 'm2', sender: 'b', timestamp: '2026-01-01T10:01:00Z' },
+    ];
+    act(() => mockWs._triggerMessage({ type: 'history', messages: history }));
+    expect(result.current.messages).toEqual(history);
+  });
+
+  test('historia con messages no-array cae a array vacio', async () => {
+    const mockWs = new MockWS();
+    chatServiceClient.validateRoomAccess.mockResolvedValue({ authorized: true });
+    chatServiceClient.connectToRoom.mockReturnValue(mockWs);
+    const { result } = renderHook(() => useChat('sala-1'));
+    await waitFor(() => expect(chatServiceClient.connectToRoom).toHaveBeenCalled());
+    act(() => mockWs._triggerOpen());
+
+    act(() => mockWs._triggerMessage({ type: 'history', messages: null }));
+    expect(result.current.messages).toEqual([]);
+  });
+
+  test('mensaje normal despues de historial hace append', async () => {
+    const mockWs = new MockWS();
+    chatServiceClient.validateRoomAccess.mockResolvedValue({ authorized: true });
+    chatServiceClient.connectToRoom.mockReturnValue(mockWs);
+    const { result } = renderHook(() => useChat('sala-1'));
+    await waitFor(() => expect(chatServiceClient.connectToRoom).toHaveBeenCalled());
+    act(() => mockWs._triggerOpen());
+
+    act(() => mockWs._triggerMessage({ type: 'history', messages: [{ message: 'h1', sender: 'a' }] }));
+    act(() => mockWs._triggerMessage({ message: 'nuevo', sender: 'b' }));
+    expect(result.current.messages).toHaveLength(2);
+    expect(result.current.messages[1]).toEqual({ message: 'nuevo', sender: 'b' });
+  });
+
   test('sin autorizacion setea error', async () => {
     chatServiceClient.validateRoomAccess.mockResolvedValue({ authorized: false });
     const { result } = renderHook(() => useChat('sala-x'));

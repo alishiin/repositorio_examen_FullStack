@@ -63,7 +63,12 @@ export const useChat = (roomName) => {
           if (cancelled) return;
           try {
             const data = JSON.parse(event.data);
-            setMessages((prev) => [...prev, data]);
+            if (data.type === 'history') {
+              // Reemplaza el state con el historial cargado de la sala.
+              setMessages(Array.isArray(data.messages) ? data.messages : []);
+            } else {
+              setMessages((prev) => [...prev, data]);
+            }
           } catch (err) {
             console.error('Error parseando mensaje WS:', err);
           }

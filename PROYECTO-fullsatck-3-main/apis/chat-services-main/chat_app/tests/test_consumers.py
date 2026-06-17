@@ -22,13 +22,46 @@ class TestChatConsumer:
         connected, _ = await communicator.connect()
         return communicator, connected
 
+    async def _connect_and_drain_history(self, room='test-room'):
+        """Conecta y consume el frame de historial que el consumer envia
+        automaticamente al conectar. Devuelve (communicator, history_frame)."""
+        communicator, connected = await self._connect(room)
+        assert connected is True
+        history = await communicator.receive_json_from(timeout=2)
+        return communicator, history
+
     async def test_connect_succeeds(self):
         communicator, connected = await self._connect()
         assert connected is True
         await communicator.disconnect()
 
+    async def test_connect_sends_history_frame_first(self):
+        """El primer frame tras conectar debe ser type:'history'."""
+        communicator, history = await self._connect_and_drain_history('room-hist-empty')
+        assert history['type'] == 'history'
+        assert history['messages'] == []  # sala vacia => historial vacio
+        await communicator.disconnect()
+
+    async def test_history_returns_existing_messages_in_order(self):
+        """El historial trae mensajes previos en orden cronologico ascendente."""
+        # Sembramos 3 mensajes directamente en DB.
+        await database_sync_to_async(Message.objects.create)(
+            room_name='room-order', sender='u1', content='primero')
+        await database_sync_to_async(Message.objects.create)(
+            room_name='room-order', sender='u2', content='segundo')
+        await database_sync_to_async(Message.objects.create)(
+            room_name='room-order', sender='u3', content='tercero')
+
+        communicator, history = await self._connect_and_drain_history('room-order')
+        assert history['type'] == 'history'
+        contents = [m['message'] for m in history['messages']]
+        assert contents == ['primero', 'segundo', 'tercero']
+        # Cada mensaje del historial trae timestamp.
+        assert all('timestamp' in m for m in history['messages'])
+        await communicator.disconnect()
+
     async def test_send_and_receive_message(self):
-        communicator, _ = await self._connect('room-A')
+        communicator, _ = await self._connect_and_drain_history('room-A')
 
         await communicator.send_json_to({
             'message': 'hola',
@@ -42,7 +75,7 @@ class TestChatConsumer:
         await communicator.disconnect()
 
     async def test_message_is_persisted_to_db(self):
-        communicator, _ = await self._connect('room-persist')
+        communicator, _ = await self._connect_and_drain_history('room-persist')
 
         await communicator.send_json_to({
             'message': 'guardame por favor',
@@ -65,8 +98,8 @@ class TestChatConsumer:
 
     async def test_two_clients_same_room_broadcast(self):
         """Dos clientes en la misma sala: lo que envia uno lo recibe el otro."""
-        client_a, _ = await self._connect('room-broadcast')
-        client_b, _ = await self._connect('room-broadcast')
+        client_a, _ = await self._connect_and_drain_history('room-broadcast')
+        client_b, _ = await self._connect_and_drain_history('room-broadcast')
 
         await client_a.send_json_to({
             'message': 'broadcast test',
