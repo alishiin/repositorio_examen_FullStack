@@ -57,6 +57,7 @@ export const geoServiceClient = {
       titulo: locationData.titulo,
       descripcion: locationData.descripcion,
       fecha_reporte: locationData.fecha_reporte,
+      imagen_url: locationData.imagen_url || null,
     };
 
     console.log('Enviando a GEO_SERVICE:', payload);

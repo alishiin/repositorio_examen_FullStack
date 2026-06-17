@@ -88,10 +88,14 @@ class FindMatchesView(APIView):
 
         candidatos = listar_reportes_opuestos(tipo_reporte)
         if not candidatos:
+            tipo_opuesto = 'encontrado' if tipo_reporte == 'perdido' else 'perdido'
             return Response({
                 'matches': [],
                 'total': 0,
-                'message': 'No hay reportes opuestos para cotejar',
+                'message': (
+                    f'No hay reportes de tipo "{tipo_opuesto}" para cotejar. '
+                    'El match cruza reportes perdidos con encontrados.'
+                ),
             })
 
         # Scoring

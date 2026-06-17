@@ -61,6 +61,7 @@ export default function ReportDetailModal({ report, isOpen, onClose, currentUser
         longitud: report.longitud,
         fecha_reporte: report.fecha_reporte,
         titulo: report.titulo,
+        imagen_url: report.imagen_url,
         user_id: currentUser?.id || currentUser?.usuario_id,
       });
     } catch {

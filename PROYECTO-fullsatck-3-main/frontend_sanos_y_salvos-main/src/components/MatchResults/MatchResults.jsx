@@ -34,10 +34,12 @@ export default function MatchResults({ matches = [], loading = false, onMatchCli
   if (!matches.length) {
     return (
       <div className="match-results-empty">
-        <p>Sin coincidencias detectadas.</p>
-        <small>
-          Esto puede mejorar a medida que se reporten más mascotas en zonas cercanas.
-        </small>
+        <p>No se encontraron coincidencias.</p>
+        <p className="match-empty-hint">
+          El sistema cruza reportes <strong>perdidos</strong> con <strong>encontrados</strong>.
+          Si tu reporte es de una mascota perdida, busca entre las encontradas (y viceversa).
+          Aun no hay reportes del tipo opuesto que coincidan.
+        </p>
       </div>
     );
   }

@@ -37,7 +37,9 @@ describe('MatchResults', () => {
 
   test('estado vacio muestra mensaje sin coincidencias', () => {
     render(<MatchResults matches={[]} loading={false} />);
-    expect(screen.getByText(/Sin coincidencias/i)).toBeInTheDocument();
+    expect(screen.getByText(/No se encontraron coincidencias/i)).toBeInTheDocument();
+    // Hint explicativo del cruce perdido<->encontrado
+    expect(screen.getByText(/cruza reportes/i)).toBeInTheDocument();
   });
 
   test('renderiza lista de matches con titulos y scores', () => {

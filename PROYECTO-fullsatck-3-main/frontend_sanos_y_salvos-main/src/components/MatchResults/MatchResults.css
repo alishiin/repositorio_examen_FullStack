@@ -12,6 +12,16 @@
   font-size: 0.85rem;
 }
 
+.match-empty-hint {
+  margin-top: 8px;
+  color: #888;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .spinner {
   margin: 0 auto 8px;
   width: 32px;

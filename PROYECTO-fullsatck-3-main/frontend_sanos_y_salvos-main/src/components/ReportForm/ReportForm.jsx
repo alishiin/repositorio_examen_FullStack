@@ -117,6 +117,7 @@ export function ReportForm({ onSuccess }) {
           longitud: parseFloat(formData.longitud),
           fecha_reporte: formData.fecha_reporte,
           titulo: formData.titulo,
+          imagen_url: imagen_url,
           user_id: user?.id || user?.usuario_id,
         }).then((r) => {
           if (r?.matches?.length) {
