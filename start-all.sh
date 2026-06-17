@@ -54,7 +54,7 @@ start_django() {
     python manage.py migrate --noinput >> "$LOGS/$name.log" 2>&1
 
     if [ -n "$asgi_module" ]; then
-        nohup daphne -p $port "$asgi_module" >> "$LOGS/$name.log" 2>&1 &
+        nohup daphne -b 0.0.0.0 -p $port "$asgi_module" >> "$LOGS/$name.log" 2>&1 &
     else
         nohup python manage.py runserver 0.0.0.0:$port >> "$LOGS/$name.log" 2>&1 &
     fi
@@ -69,7 +69,7 @@ start_django() {
 start_django "auth"         "$PROYECTO/apis/microservicios_auth_user-main/auth_user_services/AuthService" 8001
 start_django "user"         "$PROYECTO/apis/microservicios_auth_user-main/auth_user_services/UserService" 8002
 start_django "geo"          "$PROYECTO/apis/sanosysalvos-geoservice-main"                                 8003
-start_django "chat"         "$PROYECTO/apis/chat-services-main"                                           8004 "chat_service.asgi:application"
+start_django "chat"         "$PROYECTO/apis/chat-services-main"                                           8004 "chat_service_proj.asgi:application"
 start_django "match"        "$PROYECTO/apis/MatchService-main"                                            8005
 start_django "media"        "$PROYECTO/apis/Media-Service-main"                                           8006
 start_django "notification" "$PROYECTO/apis/NotificacionesServices-main"                                  8007

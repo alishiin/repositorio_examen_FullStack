@@ -64,7 +64,7 @@ cd PROYECTO-fullsatck-3-main/apis/chat-services-main
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-daphne -p 8004 chat_service.asgi:application
+daphne -b 0.0.0.0 -p 8004 chat_service_proj.asgi:application
 ```
 
 #### MatchService (puerto 8005)
