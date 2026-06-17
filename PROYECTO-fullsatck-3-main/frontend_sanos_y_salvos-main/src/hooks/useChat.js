@@ -65,19 +65,21 @@ export const useChat = (roomName) => {
     };
   }, [roomName]);
 
-  // Enviar mensaje
-  const sendMessage = useCallback((message) => {
+  // Enviar mensaje.
+  // Acepta:
+  //   - object: se envia tal cual (caller controla el formato exacto del consumer)
+  //   - string: backward-compat, se envuelve en {message, sender:'anonimo'} (formato esperado por ChatConsumer.receive)
+  const sendMessage = useCallback((payload) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      setError('Conexión no disponible');
+      setError('Conexion no disponible');
       return;
     }
 
     try {
-      wsRef.current.send(JSON.stringify({
-        type: 'message',
-        text: message,
-        timestamp: new Date().toISOString(),
-      }));
+      const data = typeof payload === 'object' && payload !== null
+        ? payload
+        : { message: String(payload), sender: 'anonimo' };
+      wsRef.current.send(JSON.stringify(data));
     } catch (err) {
       console.error('Error enviando mensaje:', err);
       setError('Error al enviar mensaje');

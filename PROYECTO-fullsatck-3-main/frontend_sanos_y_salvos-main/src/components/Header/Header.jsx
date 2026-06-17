@@ -89,6 +89,17 @@ export default function Header({ onNavigate, currentPage }) {
                 FAQ
               </a>
             </li>
+            {isAuthenticated && (
+              <li>
+                <a 
+                  href="#chat" 
+                  onClick={(e) => { e.preventDefault(); handleNavClick('chat'); }}
+                  className={currentPage === 'chat' ? 'active' : ''}
+                >
+                  Chat
+                </a>
+              </li>
+            )}
           </ul>
 
           {!isAuthenticated ? (

@@ -13,6 +13,7 @@ import Footer from '../components/Footer/Footer';
 import FAQ from './faq';
 import Veterinarias from './veterinarias';
 import Cuenta from './cuenta';
+import Chat from './chat';
 
 export default function Inicio() {
   const { isAuthenticated } = useAuth();
@@ -46,6 +47,10 @@ export default function Inicio() {
 
       {currentPage === 'cuenta' && (
         <Cuenta onNavigate={handleNavigate} />
+      )}
+
+      {currentPage === 'chat' && (
+        <Chat />
       )}
 
       {currentPage === 'faq' && (
