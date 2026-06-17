@@ -19,6 +19,7 @@ class Notification(models.Model):
     status = models.CharField(max_length=10, choices=STATUS, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(null=True, blank=True)
+    read = models.BooleanField(default=False, help_text="Marca si el usuario ya vio la notificacion")
 
     def __str__(self):
         return f"{self.notification_type} - Usuario {self.user_id} - {self.status}"

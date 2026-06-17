@@ -1,0 +1,159 @@
+/* NotificationBell.css - FASE 1B */
+
+.notification-bell {
+  position: relative;
+  display: inline-block;
+}
+
+.bell-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+  position: relative;
+  line-height: 1;
+}
+
+.bell-btn:hover,
+.bell-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.08);
+  outline: none;
+}
+
+.bell-btn:focus-visible {
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+.bell-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.bell-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 340px;
+  max-width: 92vw;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.dropdown-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.dropdown-refresh-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #374151;
+}
+
+.dropdown-refresh-btn:hover,
+.dropdown-refresh-btn:focus-visible {
+  background: #e5e7eb;
+  outline: none;
+}
+
+.dropdown-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-item:hover {
+  background: #f9fafb;
+}
+
+.notif-item.unread {
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+
+.notif-item.unread:hover {
+  background: #dbeafe;
+}
+
+.notif-item.read {
+  color: #6b7280;
+}
+
+.notif-item strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: #111827;
+}
+
+.notif-item.read strong {
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.notif-item p {
+  margin: 0 0 4px 0;
+  font-size: 0.83rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.notif-item small {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}

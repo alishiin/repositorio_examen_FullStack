@@ -1,13 +1,43 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from .serializers import TriggerNotificationSerializer
+from .models import Notification
+from .serializers import TriggerNotificationSerializer, NotificationSerializer
 from .services import NotificationSenderService
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class NotificationListView(generics.ListAPIView):
+    """GET /api/notifications/?user_id=X -> lista notificaciones del usuario (in-app)."""
+    serializer_class = NotificationSerializer
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get('user_id')
+        if user_id:
+            return Notification.objects.filter(user_id=user_id).order_by('-created_at')
+        return Notification.objects.none()
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class NotificationMarkReadView(APIView):
+    """POST /api/notifications/<pk>/mark-read/ -> marca como leida."""
+
+    def post(self, request, pk):
+        try:
+            notif = Notification.objects.get(pk=pk)
+            notif.read = True
+            notif.save(update_fields=['read'])
+            return Response({'success': True, 'id': notif.id, 'read': True})
+        except Notification.DoesNotExist:
+            return Response(
+                {'success': False, 'error': 'Notificacion no encontrada'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class TriggerMatchNotificationView(APIView):

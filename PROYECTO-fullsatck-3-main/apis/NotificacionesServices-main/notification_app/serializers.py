@@ -1,4 +1,18 @@
 from rest_framework import serializers
+from .models import Notification
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer para LIST/RETRIEVE de notificaciones (FASE 1B in-app)."""
+    class Meta:
+        model = Notification
+        fields = [
+            'id', 'user_id', 'match_id', 'title', 'message',
+            'notification_type', 'status', 'read',
+            'created_at', 'sent_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'sent_at']
+
 
 class TriggerNotificationSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=True)

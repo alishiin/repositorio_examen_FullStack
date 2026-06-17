@@ -72,6 +72,8 @@ app.listen(PORT, () => {
   console.log(`   - POST   /api/match/analyze`);
   console.log(`   - POST   /api/media/upload`);
   console.log(`   - POST   /api/notifications/trigger-match`);
+  console.log(`   - GET    /api/notifications/?user_id=X`);
+  console.log(`   - POST   /api/notifications/:id/mark-read`);
   console.log(`   - GET    /api/chat/config`);
   console.log(`   - GET    /api/chat/room/:roomName`);
 });

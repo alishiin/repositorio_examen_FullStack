@@ -309,4 +309,45 @@ export const notificationsServiceClient = {
   async sendMatchNotification(userId, userEmail, matchId, petName) {
     return this.triggerMatchNotification({ userId, userEmail, matchId, petName });
   },
+
+  /**
+   * Lista las notificaciones in-app de un usuario (FASE 1B).
+   * @param {number|string} userId
+   * @returns {Promise<Array>} lista de notificaciones (o {results: []} si hay paginacion DRF)
+   */
+  async listNotifications(userId) {
+    try {
+      const url = `${NOTIFICATION_SERVICE_URL}/?user_id=${encodeURIComponent(userId)}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Error listando notificaciones');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error listNotifications:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Marca una notificacion como leida (FASE 1B).
+   * @param {number|string} notificationId
+   */
+  async markAsRead(notificationId) {
+    try {
+      const response = await fetch(`${NOTIFICATION_SERVICE_URL}/${notificationId}/mark-read/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || 'Error marcando como leida');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error markAsRead:', error);
+      throw error;
+    }
+  },
 };

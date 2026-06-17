@@ -1,5 +1,6 @@
 // src/pages/cuenta.jsx
 import { useAuth } from '../hooks/useAuth';
+import NotificationList from '../components/Notifications/NotificationList';
 import './cuenta.css';
 
 export default function Cuenta({ onNavigate }) {
@@ -73,6 +74,10 @@ export default function Cuenta({ onNavigate }) {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="info-section">
+          <NotificationList />
         </div>
 
         <div className="cuenta-actions">

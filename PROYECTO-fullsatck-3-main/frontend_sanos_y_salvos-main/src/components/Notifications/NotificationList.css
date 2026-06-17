@@ -1,0 +1,124 @@
+/* NotificationList.css - FASE 1B */
+
+.notification-list {
+  width: 100%;
+}
+
+.notification-list h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+.notif-list-loading,
+.notif-list-error,
+.notification-list .empty {
+  padding: 12px 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.notif-list-error {
+  color: #b91c1c;
+}
+
+.notification-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notif-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  border-left: 4px solid #d1d5db;
+  transition: box-shadow 0.2s ease;
+}
+
+.notif-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.notif-card.unread {
+  border-left-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.notif-card.read {
+  border-left-color: #d1d5db;
+  background: #f9fafb;
+  color: #6b7280;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.notif-type {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1e3a8a;
+  background: #dbeafe;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+.notif-card.read .notif-type {
+  color: #4b5563;
+  background: #e5e7eb;
+}
+
+.notif-header small {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.notif-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.98rem;
+  color: #111827;
+}
+
+.notif-card.read h4 {
+  color: #4b5563;
+}
+
+.notif-card p {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #374151;
+}
+
+.mark-read-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.mark-read-btn:hover,
+.mark-read-btn:focus-visible {
+  background: #1d4ed8;
+  outline: none;
+}
+
+.mark-read-btn:focus-visible {
+  box-shadow: 0 0 0 2px #93c5fd;
+}

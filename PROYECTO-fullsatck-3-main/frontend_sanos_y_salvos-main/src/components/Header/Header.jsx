@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import './Header.css';
 import AuthModal from '../AuthModal/AuthModal';
+import NotificationBell from '../Notifications/NotificationBell';
 
 export default function Header({ onNavigate, currentPage }) {
   const { isAuthenticated, user, logout } = useAuth();
@@ -109,6 +110,7 @@ export default function Header({ onNavigate, currentPage }) {
             </>
           ) : (
             <div className="auth-buttons">
+              <NotificationBell />
               <button 
                 className="account-btn"
                 onClick={() => handleNavClick('cuenta')}
