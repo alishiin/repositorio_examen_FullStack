@@ -1,0 +1,720 @@
+
+--- Page 1 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+Evaluación Parcial N°3  
+Integración de arquitectura de microservicios 
+Estudiante 
+ 
+Sigla Nombre Asignatura Tiempo Asignado % Ponderación 
+DSY1106  DESARROLLO FULLSTACK III  8 horas 30% 
+ 
+1. Situación evaluativa  
+ 
+  Ejecución 
+práctica          X Entrega de 
+encargo            X  Presentación  
+ 
+2. Instrucciones generales para el/la estudiante 
+ 
+Descripción general de la evaluación: 
+En esta evaluación, trabajarán en equipos continuando con el caso trabajado en la evaluación parcial 1 y 2. El objetivo será generar una propuesta 
+de arquitectura de microservicios, integrando componentes frontend y backend , garantizando la comunicación entre los servicios por medio de 
+una API REST que permita  la correcta persistencia de datos, y además, generar las pruebas unitarias necesarias para garantizar una óptima 
+cobertura de todos los componentes, lo que garantizará la mejor respuesta a las necesidades del cliente. 
+En esta etapa, c ada equipo entregará un Encargo, que debe incluir los diagramas de la arquitectura de microservicios , integración de los 
+componentes backend y frontend desarrollados con persistencia de datos, y respaldo de las pruebas unitarias realizadas. Todos los componentes 
+deberán ser versionados en Github. El encargo se evaluará de forma grupal. 
+--- Page 2 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+Además, cada equipo deberá presentar y defender los resultados de su análisis en una exposición de 15 minutos. Durante la defensa, cada 
+estudiante responderá individualmente las preguntas planteadas por el/la docente, que estarán basadas en las actividades desa rrolladas en esta 
+Experiencia de Aprendizaje. Esta defensa permitirá evaluar el nivel de comprensión individual y el grado d e contribución de cada integrante del 
+equipo. 
+El tiempo asignado para esta evaluación es de 8 horas y se realiza en equipos en Taller de alto cómputo (TAITE 9). 
+La distribución de los porcentajes en esta evaluación es la siguiente:   
+ 
+Evaluación Tipo de situación evaluativa Distribución de porcentajes en la Parcial 
+Parcial N°3 Encargo 30% 
+Defensa oral 70% 
+Total 100% 
+ 
+ 
+2.1. Instrucciones del entregable:  
+• Documentar: 
+o Crear el esquema de arquitectura de microservicios. 
+o Explicar cómo se garantiza la persistencia de datos. 
+o Generar el informe de pruebas unitarias con métricas claras. 
+• Versionar: 
+o Subir cada componente a su repositorio correspondiente en GitHub. 
+o Verificar que todo esté actualizado y accesible. 
+• Comprimir: 
+o Organizar los archivos en las carpetas indicadas y generar un archivo ZIP o RAR. 
+• Enviar: 
+o Subir el archivo comprimido y compartir los enlaces a blackboard. 
+ 
+Formato del entregable: 
+• Archivo comprimido (ZIP o RAR) con todos los componentes desarrollados y su documentación. 
+--- Page 3 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+ 
+• Diagrama de Arquitectura: Imagen (PNG o JPG) o documento PDF del esquema de la arquitectura de microservicios, indicando la 
+integración entre frontend, backend, API REST , y el recurso de persistencia. 
+ 
+• Descripción de la Persistencia: Documento PDF explicando cómo se implementa la persistencia de datos (JPA, 
+procedimientos almacenados, etc.). 
+ 
+• Informe de Pruebas Unitarias: Documento PDF que incluya: 
+o Cobertura de pruebas unitarias (con gráficos si aplica). 
+o Métricas generadas por herramientas de testing (e.g., cobertura de código). 
+o Ejemplos de pruebas realizadas y sus resultados. 
+ 
+▪ Componentes frontend 
+• Archivos y dependencias del componente frontend empaquetados según el estándar NPM. 
+• Archivo package.json con scripts necesarios para la ejecución. 
+• Código fuente organizado (src, public, etc.). 
+• Archivo README.md con instrucciones para instalar, ejecutar y probar el componente frontend. 
+ 
+▪ Componentes Backend 
+• Microservicios 
+o Código fuente organizado. 
+o Archivos de configuración necesarios (e.g., application.properties, pom.xml). 
+o Archivo README.md con instrucciones para instalar, ejecutar, y probar cada microservicio. 
+• API REST 
+o Archivo Swagger o Postman Collection con la especificación de los endpoints. 
+o Incluir ejemplos de peticiones y respuestas para probar la comunicación entre servicios. 
+▪ Recurso de persistencia (JPA y/o SPs). 
+▪ Informe, métricas y/o gráficos de pruebas unitarias 
+• Código de las pruebas unitarias organizadas por componente. 
+• Archivos de configuración necesarios para ejecutar las pruebas. 
+--- Page 4 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+• Reportes de cobertura generados (e.g., en formato HTML o PDF). 
+• Guía sobre cómo ejecutar las pruebas y generar los reportes. 
+ 
+• Enlace a los repositorios en Github de los componentes. 
+▪ Incluir un archivo repositorios.txt o PDF con los enlaces a los repositorios GitHub: 
+• Repositorio Principal: Contiene documentación general y guías del proyecto. 
+• Repositorio Frontend: Código y dependencias del componente frontend. 
+• Repositorios de Microservicios: Uno por cada backend con persistencia incluida. 
+• Breve descripción de cada repositorio y su propósito. 
+ 
+2.2. Instrucciones defensa oral: 
+Se solicitará a cada equipo realizar una presentación del trabajo realizado, mediante una defensa oral donde tendrán que resp onder 
+individualmente las preguntas del/la docente. En esta exposición, se busca evidenciar la contribución y reflexión de cada int egrante sobre el 
+trabajo colectivo, dando oportunidad para que cada uno/a de ellos/as demuestre su dominio individual, a partir de  un banco de preguntas 
+sugeridas. 
+Si bien la presentación es en equipos, la calificación es individual a partir de las respuestas de cada integrante, según la rúbrica de evaluación. 
+ 
+3. Pauta de Evaluación 
+ 
+Categoría % logro Descripción niveles de logro 
+Muy buen desempeño 100% Demuestra un desempeño destacado, evidenciando el logro de todos los aspectos evaluados en el indicador.  
+Buen desempeño 80% Demuestra un alto desempeño del indicador, presentando pequeñas omisiones, dificultades y/o errores. 
+Desempeño aceptable  60% Demuestra un desempeño competente, evidenciando el logro de los elementos básicos del indicador, pero con 
+omisiones, dificultades o errores. 
+--- Page 5 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+Desempeño incipiente  30% Presenta importantes omisiones, dificultades o errores en el desempeño, que no permiten evidenciar los 
+elementos básicos del logro del indicador, por lo que no puede ser considerado competente. 
+Desempeño no logrado 0% Presenta ausencia o incorrecto desempeño. 
+ 
+3.1. Rúbrica de Evaluación 
+ 
+Indicador de Evaluación 
+Categorías de Respuesta 
+Ponderación 
+Indicador de 
+Evaluación 
+Muy buen 
+desempeño 
+100% 
+Buen desempeño 
+80% 
+Desempeño 
+aceptable 
+60% 
+Desempeño 
+incipiente 
+30% 
+Desempeño no 
+logrado 
+0% 
+ 
+Dimensión: Encargo grupal  
+1. Presenta una 
+propuesta de solución 
+estructurada que aplica 
+creativamente la 
+arquitectura de 
+microservicios, 
+dividiendo 
+correctamente las 
+funcionalidades del 
+sistema en un BFF y dos 
+microservicios, 
+respondiendo a la 
+problemática presentada. 
+Presenta una 
+propuesta creativa y 
+bien estructurada, 
+dividiendo 
+correctamente las 
+funcionalidades 
+entre un BFF y dos 
+microservicios. La 
+solución responde 
+claramente a la 
+problemática 
+presentada, 
+demostrando una 
+implementación 
+sólida de la 
+arquitectura de 
+microservicios. 
+La propuesta de 
+solución está bien 
+estructurada y aplica 
+correctamente la 
+arquitectura de 
+microservicios, pero 
+presenta pequeñas 
+omisiones o 
+limitaciones en la 
+justificación o en la 
+división de 
+funcionalidades. 
+La propuesta cumple 
+con los elementos 
+básicos de la 
+arquitectura de 
+microservicios, pero 
+presenta errores o 
+una división de 
+funcionalidades 
+incompleta. La 
+respuesta a la 
+problemática es 
+limitada. 
+Presenta 
+importantes 
+omisiones o errores 
+en la división de 
+funcionalidades o en 
+la aplicación de la 
+arquitectura de 
+microservicios, 
+dificultando la 
+resolución efectiva 
+de la problemática. 
+No presenta una 
+propuesta adecuada 
+o coherente con la 
+arquitectura de 
+microservicios, y no 
+responde 
+correctamente a la 
+problemática 
+presentada. 
+ 
+5% 
+ 
+ 
+ 
+ 
+ 
+2.  Diseña y desarrolla 
+componentes frontend 
+utilizando un framework 
+moderno, junto con 
+Diseña y desarrolla 
+componentes 
+frontend utilizando 
+un framework 
+Desarrolla 
+adecuadamente 
+componentes 
+frontend y backend, 
+Cumple con los 
+elementos básicos 
+de diseño y 
+desarrollo de 
+Presenta 
+importantes 
+omisiones o errores 
+en el diseño y 
+No cumple con los 
+requerimientos del 
+cliente, y no diseña o 
+desarrolla 
+ 10% 
+ 
+ 
+ 
+--- Page 6 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+componentes backend 
+que aplican distintos 
+lenguajes y tecnologías, 
+cumpliendo con los 
+requerimientos del 
+cliente. 
+ 
+moderno y backend 
+con distintos 
+lenguajes y 
+tecnologías, 
+cumpliendo 
+perfectamente con 
+los requerimientos 
+del cliente. 
+cumpliendo con los 
+requerimientos del 
+cliente, aunque 
+presenta pequeñas 
+omisiones o 
+dificultades en la 
+implementación de 
+alguna tecnología. 
+frontend y backend, 
+pero la 
+implementación de 
+lenguajes y 
+tecnologías es 
+limitada o presenta 
+errores que afectan 
+el cumplimiento de 
+algunos 
+requerimientos. 
+desarrollo de los 
+componentes, lo que 
+dificulta el 
+cumplimiento de los 
+requerimientos del 
+cliente. 
+adecuadamente los 
+componentes 
+frontend y backend. 
+ 
+3.  Integra correctamente 
+los componentes 
+frontend y backend 
+mediante una API REST, 
+asegurando la 
+comunicación efectiva 
+entre los servicios y una 
+correcta persistencia de 
+datos mediante JPA o SPs. 
+Integra de manera 
+impecable los 
+componentes 
+frontend y backend 
+mediante una API 
+REST, asegurando 
+una comunicación 
+fluida entre los 
+servicios y una 
+persistencia de datos 
+eficiente mediante 
+JPA o SPs. 
+Integra 
+adecuadamente los 
+componentes 
+frontend y backend, 
+pero presenta 
+pequeñas omisiones 
+o dificultades en la 
+comunicación o 
+persistencia de 
+datos. 
+La integración básica 
+entre frontend y 
+backend es 
+funcional, pero con 
+errores o 
+limitaciones en la 
+comunicación o 
+persistencia de datos 
+que afectan el 
+rendimiento general. 
+Presenta 
+importantes 
+problemas en la 
+integración de 
+componentes, con 
+errores en la 
+comunicación o en la 
+persistencia de datos 
+que impiden un 
+funcionamiento 
+efectivo. 
+No logra integrar 
+correctamente los 
+componentes 
+frontend y backend, 
+ni asegura la 
+persistencia de datos 
+adecuada. 
+  
+ 
+5% 
+ 
+ 
+4.  Implementa pruebas 
+unitarias con una 
+cobertura mínima del 
+60% en todos los 
+componentes del 
+sistema, aplicando 
+patrones de diseño 
+adecuados a la 
+problemática planteada. 
+ 
+Implementa pruebas 
+unitarias con una 
+cobertura superior al 
+60%, demostrando 
+una aplicación 
+adecuada de 
+patrones de diseño y 
+asegurando la 
+calidad de todos los 
+componentes del 
+sistema. 
+Implementa pruebas 
+unitarias con una 
+cobertura cercana o 
+justo en el 60%, 
+aplicando bien los 
+patrones de diseño, 
+aunque con 
+pequeñas omisiones 
+o errores en algunas 
+pruebas. 
+Cumple con la 
+cobertura mínima de 
+pruebas unitarias, 
+pero con errores o 
+limitaciones en la 
+aplicación de 
+patrones de diseño o 
+en la ejecución de 
+algunas pruebas. 
+Presenta 
+importantes 
+omisiones o 
+dificultades en la 
+implementación de 
+pruebas unitarias, 
+con una cobertura 
+inferior al 60% o una 
+aplicación deficiente 
+de patrones de 
+diseño. 
+No implementa 
+adecuadamente 
+pruebas unitarias, o 
+la cobertura está 
+muy por debajo del 
+60%, lo que 
+compromete la 
+calidad del sistema. 
+10% 
+ 
+Dimensión: Defensa Oral (calificación individual) 
+ 
+5. Explica de manera clara 
+y lógica las técnicas de 
+Explica de manera 
+clara, estructurada y 
+Explica 
+adecuadamente las 
+La explicación de las 
+técnicas de ideación 
+Presenta 
+explicaciones vagas o  15% 
+--- Page 7 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+ideación utilizadas para 
+desarrollar la solución, 
+justificando por qué se 
+aplicaron microservicios 
+específicos en la 
+arquitectura. 
+lógica las técnicas de 
+ideación utilizadas, 
+justificando con 
+precisión por qué se 
+aplicaron 
+microservicios 
+específicos en la 
+arquitectura, y cómo 
+estos resuelven la 
+problemática 
+planteada. 
+técnicas de ideación 
+y justifica el uso de 
+microservicios en la 
+arquitectura, aunque 
+con pequeñas 
+omisiones o errores 
+menores en la lógica 
+o justificación. 
+es básica, con una 
+justificación limitada 
+sobre el uso de 
+microservicios 
+específicos, 
+evidenciando 
+algunas omisiones o 
+dificultades en la 
+comprensión del 
+enfoque. 
+incompletas de las 
+técnicas de ideación, 
+y la justificación 
+sobre el uso de 
+microservicios en la 
+arquitectura es 
+confusa o 
+insuficiente. 
+No explica de 
+manera coherente 
+las técnicas de 
+ideación utilizadas ni 
+justifica el uso de 
+microservicios en la 
+solución presentada. 
+ 
+ 
+6.  Demuestra 
+conocimiento de los 
+lenguajes y tecnologías 
+utilizados, describiendo 
+cómo estos se integran 
+para responder a los 
+requerimientos del 
+cliente. 
+Demuestra un 
+dominio excelente 
+de los lenguajes y 
+tecnologías 
+utilizados, 
+describiendo con 
+claridad cómo se 
+integran para 
+cumplir de manera 
+efectiva con los 
+requerimientos del 
+cliente. 
+Muestra un buen 
+conocimiento de los 
+lenguajes y 
+tecnologías, aunque 
+con pequeñas 
+omisiones o errores 
+menores en la 
+explicación sobre 
+cómo se integran 
+para responder a los 
+requerimientos. 
+El conocimiento de 
+los lenguajes y 
+tecnologías es 
+adecuado, pero con 
+explicaciones 
+limitadas o con 
+errores en la 
+descripción de la 
+integración y en la 
+respuesta a los 
+requerimientos del 
+cliente. 
+Muestra un 
+conocimiento 
+limitado o confuso 
+de los lenguajes y 
+tecnologías 
+utilizados, con 
+importantes 
+omisiones en la 
+integración de estos 
+para responder a los 
+requerimientos del 
+cliente. 
+No demuestra un 
+conocimiento claro 
+de los lenguajes y 
+tecnologías ni explica 
+adecuadamente su 
+integración para 
+responder a los 
+requerimientos del 
+cliente. 
+ 
+20% 
+ 
+ 
+7.  Presenta la integración 
+de los componentes 
+frontend y backend, 
+demostrando la 
+funcionalidad y 
+escalabilidad de la 
+solución mediante la 
+arquitectura de 
+microservicios. 
+ 
+Presenta de manera 
+clara y efectiva la 
+integración de los 
+componentes 
+frontend y backend, 
+demostrando con 
+ejemplos la 
+funcionalidad y 
+escalabilidad de la 
+solución 
+implementada con 
+microservicios. 
+La integración de los 
+componentes 
+frontend y backend 
+está bien 
+presentada, pero 
+con pequeñas 
+omisiones o 
+limitaciones en la 
+demostración de la 
+funcionalidad o 
+escalabilidad de la 
+solución. 
+La integración es 
+funcional, pero la 
+presentación es 
+básica y con 
+dificultades para 
+demostrar la 
+escalabilidad de la 
+solución a través de 
+la arquitectura de 
+microservicios. 
+Presenta 
+importantes errores 
+en la integración de 
+los componentes, lo 
+que afecta la 
+funcionalidad y hace 
+difícil demostrar la 
+escalabilidad de la 
+solución. 
+No presenta de 
+manera coherente la 
+integración de los 
+componentes 
+frontend y backend, 
+ni demuestra la 
+funcionalidad y 
+escalabilidad de la 
+arquitectura de 
+microservicios. 
+15% 
+ 
+ 
+ 
+ 
+ 
+8.  Presenta las pruebas 
+unitarias implementadas, 
+explicando cómo se 
+Presenta 
+detalladamente las 
+pruebas unitarias 
+Explica 
+adecuadamente las 
+pruebas unitarias y la 
+La explicación de las 
+pruebas unitarias es 
+básica, con una 
+Presenta una 
+implementación 
+limitada de pruebas 
+No presenta las 
+pruebas unitarias 
+adecuadamente, no 
+ 
+20% 
+ 
+--- Page 8 ---
+ 
+Subdirección de Diseño Instruccional 
+ 
+ 
+asegura la cobertura y 
+cómo los patrones de 
+diseño aplicados mejoran 
+la calidad y 
+mantenibilidad del 
+sistema. 
+implementadas, 
+explicando cómo se 
+asegura la cobertura 
+de manera clara, y 
+demuestra cómo los 
+patrones de diseño 
+aplicados mejoran la 
+calidad y 
+mantenibilidad del 
+sistema. 
+cobertura 
+asegurada, con 
+ejemplos claros, 
+pero presenta 
+pequeñas omisiones 
+o dificultades en la 
+explicación de la 
+relación entre los 
+patrones de diseño y 
+la mantenibilidad del 
+sistema. 
+cobertura mínima 
+asegurada, pero con 
+limitaciones para 
+justificar cómo los 
+patrones de diseño 
+mejoran la calidad y 
+mantenibilidad del 
+sistema. 
+unitarias, con una 
+cobertura 
+insuficiente y una 
+explicación confusa o 
+incompleta sobre 
+cómo los patrones 
+de diseño afectan la 
+calidad y 
+mantenibilidad del 
+sistema. 
+asegura una 
+cobertura mínima, ni 
+justifica cómo los 
+patrones de diseño 
+contribuyen a la 
+calidad y 
+mantenibilidad del 
+sistema. 
+ 
+Total 100% 

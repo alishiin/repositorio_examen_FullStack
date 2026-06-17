@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  title: Sanos y Salvos - GeoService API
+  version: 1.0.0
+  description: Servicio de geolocalización para reportes de mascotas
+  contact:
+    name: Equipo Desarrollo
+
+servers:
+  - url: http://localhost:8001
+    description: Servidor Local
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio disponible
+
+  /api/ubicaciones:
+    get:
+      summary: Listar ubicaciones
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: tipo_reporte
+          in: query
+          schema:
+            type: string
+            enum: [perdido, encontrado]
+        - name: tipo_animal
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de ubicaciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+
+    post:
+      summary: Crear nueva ubicación
+      tags:
+        - Ubicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+      responses:
+        '201':
+          description: Ubicación creada
+
+  /api/ubicaciones/{id}:
+    get:
+      summary: Obtener ubicación
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ubicación encontrada
+
+    put:
+      summary: Actualizar ubicación
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+      responses:
+        '200':
+          description: Ubicación actualizada
+
+    delete:
+      summary: Eliminar ubicación
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Ubicación eliminada
+
+  /api/ubicaciones/buscar_cercanos:
+    post:
+      summary: Buscar ubicaciones por proximidad
+      tags:
+        - Ubicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - latitud
+                - longitud
+                - radio_km
+              properties:
+                latitud:
+                  type: number
+                longitud:
+                  type: number
+                radio_km:
+                  type: number
+                tipo_reporte:
+                  type: string
+                  enum: [perdido, encontrado, ambos]
+      responses:
+        '200':
+          description: Reportes cercanos
+
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        reporte_id:
+          type: string
+        latitud:
+          type: number
+        longitud:
+          type: number
+        tipo_reporte:
+          type: string
+        tipo_animal:
+          type: string
+        titulo:
+          type: string
+
+    LocationCreate:
+      type: object
+      required:
+        - reporte_id
+        - pet_id
+        - latitud
+        - longitud
+      properties:
+        reporte_id:
+          type: string
+        pet_id:
+          type: string
+        latitud:
+          type: number
+        longitud:
+          type: number
+        tipo_reporte:
+          type: string
+        titulo:
+          type: string

@@ -1,0 +1,153 @@
+/* src/pages/buscar-cercanos.css */
+
+.buscar-cercanos-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2D4059 0%, #1B2838 100%);
+  padding: 40px 20px;
+  margin-top: 150px;
+}
+
+.page-header {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: #E8ECF0;
+  transform: scale(1.1);
+}
+
+.header-content h1 {
+  margin: 0 0 8px 0;
+  color: #2D4059;
+  font-size: 2rem;
+}
+
+.header-content p {
+  margin: 0;
+  color: #70D6BC;
+  font-size: 1rem;
+}
+
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Auth Required Styles */
+.auth-required {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.auth-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.auth-required h2 {
+  font-size: 1.8rem;
+  color: #2D4059;
+  margin: 0 0 12px 0;
+}
+
+.auth-required p {
+  color: #70D6BC;
+  font-size: 1.05rem;
+  margin: 0 0 30px 0;
+  line-height: 1.6;
+}
+
+.login-button {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #FF844B 0%, #FF6B2C 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 132, 75, 0.3);
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .buscar-cercanos-page {
+    padding: 20px 10px;
+    margin-top: 120px;
+  }
+
+  .page-header {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .header-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .page-content {
+    padding: 20px;
+  }
+
+  .close-btn {
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .auth-required {
+    padding: 40px 20px;
+  }
+
+  .auth-icon {
+    font-size: 60px;
+  }
+
+  .auth-required h2 {
+    font-size: 1.4rem;
+  }
+
+  .auth-required p {
+    font-size: 0.95rem;
+  }
+
+  .login-button {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
+}

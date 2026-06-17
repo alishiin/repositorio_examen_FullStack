@@ -1,0 +1,155 @@
+/* src/pages/cuenta.css */
+
+.cuenta-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2D4059 0%, #1B2838 100%);
+  padding: 40px 20px;
+  margin-top: 150px;
+}
+
+.cuenta-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.cuenta-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.user-avatar {
+  font-size: 60px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.cuenta-header h1 {
+  font-size: 2rem;
+  color: #2D4059;
+  margin: 0;
+}
+
+.info-section {
+  margin-bottom: 30px;
+}
+
+.info-section h2 {
+  font-size: 1.3rem;
+  color: #2D4059;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #FF844B;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #FF844B;
+}
+
+.info-item label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #FF844B;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item p {
+  font-size: 1rem;
+  color: #2D4059;
+  margin: 0;
+  font-weight: 500;
+}
+
+.cuenta-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid #f0f0f0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-danger {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #2D4059;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1B2838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 64, 89, 0.4);
+}
+
+.btn-danger {
+  background: #ff6b6b;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cuenta-page {
+    padding: 20px 10px;
+    margin-top: 120px;
+  }
+
+  .cuenta-container {
+    padding: 20px;
+  }
+
+  .user-avatar {
+    font-size: 50px;
+  }
+
+  .cuenta-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cuenta-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    width: 100%;
+  }
+}

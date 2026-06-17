@@ -1,0 +1,734 @@
+openapi: 3.0.0
+info:
+  title: Sanos y Salvos - Backend for Frontend (BFF)
+  version: 1.0.0
+  description: Capa intermedia que integra GeoService, UserService y manejo de reportes
+  contact:
+    name: Equipo Desarrollo
+    email: dev@sanosalavos.com
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Servidor Local
+  - url: http://production.sanosalavos.com/api
+    description: Servidor Producción
+
+paths:
+  /health:
+    get:
+      summary: Health check del BFF
+      tags:
+        - Health
+      responses:
+        '200':
+          description: BFF disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  services:
+                    type: object
+                    properties:
+                      geoservice:
+                        type: string
+                      userservice:
+                        type: string
+
+  /auth/login:
+    post:
+      summary: Iniciar sesión de usuario
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Inicio de sesión exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Credenciales inválidas
+
+  /auth/register:
+    post:
+      summary: Registrar nuevo usuario
+      tags:
+        - Autenticación
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                name:
+                  type: string
+                phone:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: Datos inválidos o usuario ya existe
+
+  /auth/profile:
+    get:
+      summary: Obtener perfil del usuario autenticado
+      tags:
+        - Autenticación
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: No autenticado
+
+  /pets:
+    get:
+      summary: Obtener todos los reportes de mascotas
+      tags:
+        - Mascotas
+      parameters:
+        - name: type
+          in: query
+          description: Filtrar por tipo de reporte
+          schema:
+            type: string
+            enum: [missing, found]
+        - name: status
+          in: query
+          description: Filtrar por estado
+          schema:
+            type: string
+            enum: [pending, approved, rejected, recovered]
+        - name: search
+          in: query
+          description: Buscar por nombre o raza
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Lista de reportes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetReport'
+                  count:
+                    type: integer
+
+  /pets/missing:
+    get:
+      summary: Obtener mascotas perdidas
+      tags:
+        - Mascotas
+      parameters:
+        - name: lat
+          in: query
+          description: Latitud para búsqueda por proximidad
+          schema:
+            type: number
+        - name: lng
+          in: query
+          description: Longitud para búsqueda por proximidad
+          schema:
+            type: number
+        - name: radius
+          in: query
+          description: Radio en km para búsqueda por proximidad
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Mascotas perdidas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetReport'
+
+  /pets/found:
+    get:
+      summary: Obtener mascotas encontradas
+      tags:
+        - Mascotas
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lng
+          in: query
+          schema:
+            type: number
+        - name: radius
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Mascotas encontradas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PetReport'
+
+  /pets/{id}:
+    get:
+      summary: Obtener detalle de un reporte
+      tags:
+        - Mascotas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle del reporte
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/PetReportDetail'
+        '404':
+          description: Reporte no encontrado
+
+  /clinics:
+    get:
+      summary: Obtener clínicas veterinarias
+      tags:
+        - Clínicas
+      parameters:
+        - name: lat
+          in: query
+          description: Latitud
+          schema:
+            type: number
+        - name: lng
+          in: query
+          description: Longitud
+          schema:
+            type: number
+        - name: radius
+          in: query
+          description: Radio en km
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Lista de clínicas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Clinic'
+
+  /clinics/{id}:
+    get:
+      summary: Obtener detalle de clínica
+      tags:
+        - Clínicas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle de clínica
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/ClinicDetail'
+
+  /admin/dashboard:
+    get:
+      summary: Obtener estadísticas del dashboard
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Estadísticas del dashboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/AdminDashboard'
+
+  /admin/pets:
+    get:
+      summary: Listar todos los reportes para administración
+      tags:
+        - Admin
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [missing, found]
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de reportes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminPetReport'
+
+  /admin/pets/{id}:
+    get:
+      summary: Obtener detalle de reporte para administración
+      tags:
+        - Admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle del reporte
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/AdminPetReportDetail'
+
+  /admin/pets/{id}/approve:
+    post:
+      summary: Aprobar reporte
+      tags:
+        - Admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Reporte aprobado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /admin/pets/{id}/reject:
+    post:
+      summary: Rechazar reporte
+      tags:
+        - Admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Reporte rechazado
+
+  /admin/pets/{id}/recover:
+    post:
+      summary: Marcar mascota como recuperada
+      tags:
+        - Admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - clinic_id
+              properties:
+                clinic_id:
+                  type: integer
+      responses:
+        '200':
+          description: Mascota marcada como recuperada
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        avatar:
+          type: string
+          nullable: true
+
+    PetReport:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [perro, gato, pajaro, conejo, otro]
+        breed:
+          type: string
+        age:
+          type: string
+        color:
+          type: string
+        description:
+          type: string
+        image:
+          type: string
+          format: url
+        reportType:
+          type: string
+          enum: [missing, found]
+        status:
+          type: string
+          enum: [pending, approved, rejected, recovered]
+        location:
+          $ref: '#/components/schemas/Location'
+        reporter:
+          $ref: '#/components/schemas/Reporter'
+        reportDate:
+          type: string
+          format: date-time
+
+    PetReportDetail:
+      allOf:
+        - $ref: '#/components/schemas/PetReport'
+        - type: object
+          properties:
+            microchip:
+              type: string
+              nullable: true
+            vaccinated:
+              type: boolean
+            clinicsNotified:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  response:
+                    type: string
+                    nullable: true
+
+    AdminPetReport:
+      allOf:
+        - $ref: '#/components/schemas/PetReport'
+        - type: object
+          properties:
+            notes:
+              type: string
+
+    AdminPetReportDetail:
+      allOf:
+        - $ref: '#/components/schemas/PetReportDetail'
+        - type: object
+          properties:
+            notes:
+              type: string
+
+    Location:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: float
+        lng:
+          type: number
+          format: float
+        area:
+          type: string
+        address:
+          type: string
+          nullable: true
+
+    Reporter:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+          nullable: true
+
+    Clinic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        rating:
+          type: number
+          format: float
+        distance:
+          type: number
+          format: float
+          description: Distancia en km desde la ubicación de búsqueda
+
+    ClinicDetail:
+      allOf:
+        - $ref: '#/components/schemas/Clinic'
+        - type: object
+          properties:
+            hours:
+              type: object
+              properties:
+                open:
+                  type: string
+                close:
+                  type: string
+            services:
+              type: array
+              items:
+                type: string
+            certified:
+              type: boolean
+            reviews:
+              type: integer
+            emergency:
+              type: boolean
+            website:
+              type: string
+              nullable: true
+
+    AdminDashboard:
+      type: object
+      properties:
+        totalPending:
+          type: integer
+        totalMissing:
+          type: integer
+        totalFound:
+          type: integer
+        totalRecovered:
+          type: integer
+        reportsThisMonth:
+          type: object
+          properties:
+            missing:
+              type: integer
+            found:
+              type: integer
+            recovered:
+              type: integer
+        recentActivity:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              type:
+                type: string
+              petName:
+                type: string
+              reporter:
+                type: string
+              date:
+                type: string
+                format: date-time
+              status:
+                type: string

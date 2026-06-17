@@ -1,0 +1,265 @@
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.auth-modal {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #2D4059;
+  z-index: 10;
+  transition: color 0.3s;
+}
+
+.modal-close-btn:hover {
+  color: #FF844B;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid #E8ECF0;
+  flex-shrink: 0;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 15px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: #70D6BC;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  bottom: -2px;
+}
+
+.auth-tab:hover {
+  color: #2D4059;
+  background-color: #F7F9FC;
+}
+
+.auth-tab.active {
+  color: #FF844B;
+  border-bottom-color: #FF844B;
+}
+
+.auth-form {
+  padding: 20px 25px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  color: #2D4059;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #E8ECF0;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #FF844B;
+  box-shadow: 0 0 0 3px rgba(255, 132, 75, 0.1);
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  border-left: 4px solid #c33;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #FF844B, #FF6B2C);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 12px;
+}
+
+.auth-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 132, 75, 0.3);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  padding: 0 25px 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.auth-footer p {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+}
+
+.auth-toggle-btn {
+  background: none;
+  border: none;
+  color: #FF844B;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.3s;
+  font-size: 14px;
+}
+
+.auth-toggle-btn:hover {
+  color: #FF6B2C;
+  text-decoration: underline;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .auth-modal-overlay {
+    padding: 10px;
+  }
+
+  .auth-modal {
+    max-width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .auth-tabs {
+    display: flex;
+  }
+
+  .auth-tab {
+    padding: 15px;
+    font-size: 14px;
+  }
+
+  .auth-form {
+    padding: 15px 18px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .auth-footer {
+    padding: 0 18px 15px;
+  }
+
+  .auth-footer p {
+    font-size: 12px;
+  }
+
+  .auth-submit-btn {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+
+  .modal-close-btn {
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+  }
+}
+
+/* Scrollbar personalizado */
+.auth-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.auth-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.auth-form::-webkit-scrollbar-thumb {
+  background: #FF844B;
+  border-radius: 10px;
+}
+
+.auth-form::-webkit-scrollbar-thumb:hover {
+  background: #FF844B;
+}

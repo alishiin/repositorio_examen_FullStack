@@ -1,0 +1,153 @@
+.admin-page {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.admin-navbar {
+  background: linear-gradient(135deg, #2C3E50 0%, #34495E 100%);
+  color: white;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar-left h1 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.user-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-btn {
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-btn.active {
+  background: #2980B9;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+}
+
+.logout-btn {
+  padding: 10px 16px;
+  background: #C0392B;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(192, 57, 43, 0.3);
+}
+
+.logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(192, 57, 43, 0.4);
+  background: #A93226;
+}
+
+/* Content */
+.admin-content {
+  flex: 1;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-navbar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 12px 20px;
+  }
+
+  .navbar-left {
+    width: 100%;
+  }
+
+  .navbar-left h1 {
+    font-size: 20px;
+  }
+
+  .navbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-navbar {
+    padding: 10px 15px;
+  }
+
+  .navbar-left h1 {
+    font-size: 18px;
+  }
+
+  .user-badge {
+    display: none;
+  }
+
+  .nav-btn,
+  .logout-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

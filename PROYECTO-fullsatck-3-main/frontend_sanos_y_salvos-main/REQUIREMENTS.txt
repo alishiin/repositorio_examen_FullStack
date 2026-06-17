@@ -1,0 +1,192 @@
+# ================================================================
+# REQUIREMENTS - Sanos y Salvos
+# ================================================================
+# Este archivo lista todas las dependencias del proyecto
+# 
+# El proyecto usa Node.js y npm, no Python
+# Para instalar todas las dependencias, ejecuta:
+#
+# Windows (PowerShell):
+#   .\setup.ps1
+#
+# Mac/Linux (Bash):
+#   bash setup.sh
+#
+# O manualmente:
+#   npm run setup:all
+#
+# ================================================================
+
+## REQUISITOS GLOBALES
+# - Node.js: v18.0.0 o superior
+# - npm: v9.0.0 o superior
+
+## ================================================================
+## FRONTEND - React + Vite
+## ================================================================
+
+### Dependencias de Producción
+- react@^19.2.5          # Librería UI
+- react-dom@^19.2.5      # Renderizador React para DOM
+- leaflet@^1.9.4         # Librería de mapas interactivos
+- mapbox-gl@^3.23.1      # Integración Mapbox GL
+- react-leaflet@^5.0.0   # Componentes React para Leaflet
+
+### Dependencias de Desarrollo
+- vite@^8.0.10           # Build tool y dev server
+- @vitejs/plugin-react@^6.0.1  # Plugin React para Vite
+- eslint@^10.2.1         # Linter de código
+- eslint-plugin-react-hooks@^7.1.1  # Plugin ESLint para React Hooks
+- eslint-plugin-react-refresh@^0.5.2  # Plugin ESLint para React Refresh
+- @eslint/js@^10.0.1     # Configuración base ESLint
+- @types/react@^19.2.14  # Type definitions React
+- @types/react-dom@^19.2.3  # Type definitions React DOM
+- globals@^17.5.0        # Variables globales de ESLint
+
+## ================================================================
+## BACKEND - Express BFF
+## ================================================================
+
+### Dependencias de Producción
+- express@^4.18.2        # Framework web
+- cors@^2.8.5            # Manejo de CORS
+- dotenv@^16.0.3         # Variables de entorno
+
+### Dependencias de Desarrollo
+(ninguna requerida por el momento)
+
+## ================================================================
+## PROCEDIMIENTO DE INSTALACIÓN
+## ================================================================
+
+### Paso 1: Requisitos del Sistema
+1. Instalar Node.js desde https://nodejs.org/
+   - Descarga LTS (Long Term Support)
+   - Mínimo v18.0.0
+
+2. Verificar instalación:
+   node --version    # Debe mostrar v18.x.x o superior
+   npm --version     # Debe mostrar 9.x.x o superior
+
+### Paso 2: Clonar/Acceder al Proyecto
+cd "ruta/al/proyecto"
+
+### Paso 3: Ejecutar Setup
+
+#### Windows (Recomendado):
+.\setup.ps1
+
+Si recibes error de ejecución, ejecuta:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+#### Mac/Linux (Recomendado):
+bash setup.sh
+
+#### Manual (Todos los sistemas):
+# Instalar backend
+cd backend
+npm install
+cd ..
+
+# Instalar frontend
+npm install
+
+# Crear archivos .env
+copy .env.example .env
+copy backend\.env.example backend\.env
+
+### Paso 4: Verificar Instalación
+# Health check del backend
+curl http://localhost:5000/api/health
+
+## ================================================================
+## ARCHIVOS IMPORTANTES
+## ================================================================
+
+📁 /backend/package.json
+   - Dependencias del BFF
+   - Scripts: npm run dev, npm start
+
+📁 /package.json (frontend)
+   - Dependencias de React/Vite
+   - Scripts: npm run dev, npm run build
+
+📄 .env
+   - Variables de entorno frontend
+   - VITE_API_URL=http://localhost:5000/api
+
+📄 backend/.env
+   - Variables de entorno backend
+   - PORT=5000
+
+📄 .env.example
+   - Plantilla de .env frontend
+
+📄 backend/.env.example
+   - Plantilla de .env backend
+
+## ================================================================
+## COMANDOS ÚTILES
+## ================================================================
+
+### Desarrollo
+npm run dev          # Inicia frontend en puerto 5173
+cd backend && npm run dev  # Inicia backend en puerto 5000
+npm run dev:all      # Inicia ambos (requiere 2 terminales)
+
+### Build
+npm run build        # Compila frontend para producción
+
+### Linting
+npm run lint         # Verifica código con ESLint
+
+### Backend
+cd backend
+npm start            # Inicia backend en modo producción
+npm run dev          # Inicia backend en modo desarrollo
+
+## ================================================================
+## RESOLUCIÓN DE PROBLEMAS
+## ================================================================
+
+### Error: "npm: comando no encontrado"
+Solución: Node.js no está instalado correctamente
+- Descarga desde https://nodejs.org/
+- Reinicia tu terminal después de instalar
+
+### Error: "puerto ya en uso"
+Solución: Otro proceso está usando el puerto
+- Frontend (5173): Busca y cierra otro Vite
+- Backend (5000): Busca y cierra otro Express
+
+### Error: "módulo no encontrado"
+Solución: Ejecuta npm install en la carpeta correspondiente
+- Backend: cd backend && npm install && cd ..
+- Frontend: npm install
+
+### Error: CORS en frontend
+Solución: Asegúrate de que:
+1. Backend está corriendo en puerto 5000
+2. VITE_API_URL en .env apunta a http://localhost:5000/api
+3. Backend tiene CORS habilitado
+
+## ================================================================
+## DOCUMENTACIÓN ADICIONAL
+## ================================================================
+
+📖 BFF_README.md    - Guía completa del Backend for Frontend
+📖 QUICK_START.md   - Inicio rápido en 3 pasos
+📖 ARCHITECTURE.md  - Diagramas y estructura del proyecto
+
+## ================================================================
+## SOPORTE Y AYUDA
+## ================================================================
+
+Para más información:
+- Documentación Node.js: https://nodejs.org/en/docs/
+- Documentación React: https://react.dev/
+- Documentación Vite: https://vitejs.dev/
+- Documentación Express: https://expressjs.com/
+
+Versión: 1.0.0
+Última actualización: 12/05/2026

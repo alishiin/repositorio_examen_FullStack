@@ -1,0 +1,21 @@
+{
+  "reportStates": {
+    "1": {
+      "status": "rejected",
+      "notes": "vali pico ctm subi prua wea ",
+      "rejectedAt": "2026-05-13T02:58:32.326Z",
+      "notesUpdatedAt": "2026-05-13T03:11:00.166Z"
+    },
+    "2": {
+      "status": "approved",
+      "notes": "",
+      "approvedAt": "2026-05-13T03:13:22.822Z"
+    },
+    "3": {
+      "status": "approved",
+      "notes": "",
+      "approvedAt": "2026-05-13T02:58:13.582Z"
+    }
+  },
+  "deletedReports": []
+}

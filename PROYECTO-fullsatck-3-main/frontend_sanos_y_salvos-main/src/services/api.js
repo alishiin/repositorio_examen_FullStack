@@ -1,0 +1,312 @@
+// src/services/api.js
+const GEO_SERVICE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:8001/api';
+const USER_SERVICE_URL = import.meta.env.VITE_USER_SERVICE_URL || 'http://127.0.0.1:8002';
+const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://127.0.0.1:8003';
+
+// BFF URLs para nuevos microservicios
+const BFF_URL = import.meta.env.VITE_BFF_URL || 'http://localhost:5000';
+const CHAT_SERVICE_URL = import.meta.env.VITE_CHAT_SERVICE_URL || `${BFF_URL}/api/chat`;
+const MATCH_SERVICE_URL = import.meta.env.VITE_MATCH_SERVICE_URL || `${BFF_URL}/api/match`;
+const MEDIA_SERVICE_URL = import.meta.env.VITE_MEDIA_SERVICE_URL || `${BFF_URL}/api/media`;
+const NOTIFICATION_SERVICE_URL = import.meta.env.VITE_NOTIFICATION_SERVICE_URL || `${BFF_URL}/api/notifications`;
+
+export const geoServiceClient = {
+  async getNearbySpontaneous(latitude, longitude, radiusKm = 10, reportType = 'ambos') {
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/buscar_cercanos/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        latitud: latitude,
+        longitud: longitude,
+        radio_km: radiusKm,
+        tipo_reporte: reportType,
+      }),
+    });
+
+    if (!response.ok) throw new Error('Error en búsqueda de proximidad');
+    return response.json();
+  },
+
+  async getLocations(filters = {}) {
+    const params = new URLSearchParams(filters);
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/?${params}`);
+    if (!response.ok) throw new Error('Error al obtener ubicaciones');
+    return response.json();
+  },
+
+  async createLocation(locationData) {
+    // Generar IDs únicos para reporte_id y pet_id
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(7);
+    const reporte_id = `rep_${timestamp}_${random}`;
+    const pet_id = `pet_${timestamp}_${random}`;
+
+    const payload = {
+      reporte_id: reporte_id,
+      pet_id: pet_id,
+      usuario_id: locationData.usuario_id || null,
+      latitud: parseFloat(locationData.latitud),
+      longitud: parseFloat(locationData.longitud),
+      tipo_reporte: locationData.tipo_reporte,
+      tipo_animal: locationData.tipo_animal,
+      raza_probable: locationData.raza_probable || '',
+      color: locationData.color || '',
+      tamaño: locationData.tamaño || '',
+      titulo: locationData.titulo,
+      descripcion: locationData.descripcion,
+      fecha_reporte: locationData.fecha_reporte,
+    };
+
+    console.log('Enviando a GEO_SERVICE:', payload);
+
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      let errorMsg = `Error ${response.status}`;
+      try {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          console.error('Error del servidor:', errorData);
+          errorMsg += `: ${JSON.stringify(errorData)}`;
+        } else {
+          const text = await response.text();
+          console.error('Error del servidor (text):', text);
+          errorMsg += `: ${text.substring(0, 200)}`;
+        }
+      } catch (e) {
+        console.error('No se pudo parsear respuesta:', e);
+      }
+      throw new Error(errorMsg);
+    }
+
+    const result = await response.json();
+    console.log('Ubicación creada:', result);
+    return result;
+  },
+
+  async getLocation(id) {
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/${id}/`);
+    if (!response.ok) throw new Error('Ubicación no encontrada');
+    return response.json();
+  },
+};
+
+export const userServiceClient = {
+  async login(email, password) {
+    const response = await fetch(`${AUTH_SERVICE_URL}/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!response.ok) throw new Error('Error en login');
+    return response.json();
+  },
+
+  async register(userData) {
+    const response = await fetch(`${USER_SERVICE_URL}/users/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    if (!response.ok) throw new Error('Error en registro');
+    return response.json();
+  },
+};
+
+// ==========================================
+// 🆕 NUEVOS MICROSERVICIOS - ENTREGA 3
+// ==========================================
+
+/**
+ * Chat Service Client
+ * Proporciona configuración para conectar con WebSockets
+ */
+export const chatServiceClient = {
+  /**
+   * Obtiene la configuración de WebSocket para conectarse al servicio de chat
+   * @returns { wsUrl, endpoints }
+   */
+  async getChatConfig() {
+    try {
+      const response = await fetch(`${CHAT_SERVICE_URL}/config/`);
+      if (!response.ok) throw new Error('Error obteniendo configuración de chat');
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Error en Chat Config:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Valida el acceso a una sala de chat específica
+   * @param {string} roomName - Nombre de la sala
+   * @returns { wsUrl, room, authorized, wsEndpoint }
+   */
+  async validateRoomAccess(roomName) {
+    try {
+      const response = await fetch(`${CHAT_SERVICE_URL}/room/${roomName}/validate/`);
+      if (!response.ok) throw new Error('Error validando acceso a la sala');
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Error validando sala:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Conecta con el WebSocket de chat
+   * @param {string} roomName - Nombre de la sala
+   * @returns {WebSocket} - Conexión WebSocket activa
+   */
+  connectToRoom(roomName) {
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = window.location.hostname;
+    const wsPort = window.location.port ? `:${window.location.port}` : '';
+    const wsUrl = `${wsProtocol}//${wsHost}${wsPort}/ws/chat/${roomName}/`;
+    
+    console.log(`🔗 Conectando a sala ${roomName}:`, wsUrl);
+    return new WebSocket(wsUrl);
+  },
+};
+
+/**
+ * Match Service Client
+ * Análisis de imágenes con IA para encontrar mascotas perdidas similares
+ */
+export const matchServiceClient = {
+  /**
+   * Analiza una imagen de mascota para encontrar coincidencias
+   * @param {FormData} formData - Datos del formulario con archivo de imagen
+   * @returns { message, report_id, pet_type, descripcion_automatica }
+   */
+  async analyzePetImage(formData) {
+    try {
+      const response = await fetch(`${MATCH_SERVICE_URL}/analyze/`, {
+        method: 'POST',
+        body: formData, // Enviar como FormData para multipart
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error analizando imagen');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Error en Match Service:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Analiza una imagen con datos específicos
+   * @param {string} reportId - ID del reporte
+   * @param {string} petType - Tipo de mascota (perro/gato)
+   * @param {File} imageFile - Archivo de imagen
+   * @returns { message, report_id, pet_type, descripcion_automatica }
+   */
+  async analyzeWithImage(reportId, petType, imageFile) {
+    const formData = new FormData();
+    formData.append('report_id', reportId);
+    formData.append('pet_type', petType);
+    formData.append('image', imageFile);
+    
+    return this.analyzePetImage(formData);
+  },
+};
+
+/**
+ * Media Service Client
+ * Gestión de carga y almacenamiento de imágenes de mascotas
+ */
+export const mediaServiceClient = {
+  /**
+   * Carga una imagen al servidor de media
+   * @param {FormData} formData - Datos del formulario con archivo de imagen
+   * @returns { id, image_url, uploaded_at }
+   */
+  async uploadImage(formData) {
+    try {
+      const response = await fetch(`${MEDIA_SERVICE_URL}/upload/`, {
+        method: 'POST',
+        body: formData, // Enviar como FormData para multipart
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error cargando imagen');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Error en Media Service:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Carga una imagen con archivo específico
+   * @param {File} imageFile - Archivo de imagen
+   * @param {string} description - Descripción de la imagen (opcional)
+   * @returns { id, image_url, uploaded_at }
+   */
+  async uploadPetImage(imageFile, description = '') {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    if (description) {
+      formData.append('description', description);
+    }
+    
+    return this.uploadImage(formData);
+  },
+};
+
+/**
+ * Notifications Service Client
+ * Envío de notificaciones a usuarios sobre matches de mascotas
+ */
+export const notificationsServiceClient = {
+  /**
+   * Envía una notificación de match a un usuario
+   * @param {Object} params - Parámetros de la notificación
+   * @param {number} params.userId - ID del usuario
+   * @param {string} params.userEmail - Email del usuario
+   * @param {number} params.matchId - ID del match
+   * @param {string} params.petName - Nombre de la mascota
+   * @returns { success, message, notification_id }
+   */
+  async triggerMatchNotification({ userId, userEmail, matchId, petName }) {
+    try {
+      const response = await fetch(`${NOTIFICATION_SERVICE_URL}/trigger-match/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          user_email: userEmail,
+          match_id: matchId,
+          pet_name: petName,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error enviando notificación');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Error en Notification Service:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Alias para compatibilidad
+   */
+  async sendMatchNotification(userId, userEmail, matchId, petName) {
+    return this.triggerMatchNotification({ userId, userEmail, matchId, petName });
+  },
+};

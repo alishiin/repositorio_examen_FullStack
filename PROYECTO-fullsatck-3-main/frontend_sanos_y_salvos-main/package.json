@@ -1,0 +1,42 @@
+{
+  "name": "frontend_masacota",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "setup": "npm run setup:all",
+    "setup:all": "npm run setup:backend && npm install && npm run setup:env",
+    "setup:backend": "cd backend && npm install && cd ..",
+    "setup:env": "node scripts/setup-env.js",
+    "dev:all": "npm run dev:backend & npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "mapbox-gl": "^3.23.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-leaflet": "^5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.2.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "jest": "^30.4.2",
+    "vite": "^8.0.10"
+  }
+}

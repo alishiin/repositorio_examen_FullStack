@@ -1,0 +1,370 @@
+openapi: 3.0.0
+info:
+  title: Sanos y Salvos - GeoService API
+  version: 1.0.0
+  description: Servicio de geolocalización para reportes de mascotas perdidas/encontradas
+  contact:
+    name: Equipo Desarrollo
+    email: dev@sanosalavos.com
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8001
+    description: Servidor Local
+  - url: http://production.sanosalavos.com
+    description: Servidor Producción
+
+paths:
+  /health:
+    get:
+      summary: Health check del servicio
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio disponible
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /ready:
+    get:
+      summary: Readiness check - Verifica si el servicio está listo
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio listo
+        '503':
+          description: Servicio no listo
+
+  /alive:
+    get:
+      summary: Liveness check - Verifica si el servicio está vivo
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Servicio activo
+
+  /api/ubicaciones:
+    get:
+      summary: Obtener todas las ubicaciones con filtros
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: tipo_reporte
+          in: query
+          description: Filtrar por tipo de reporte
+          schema:
+            type: string
+            enum: [perdido, encontrado]
+        - name: tipo_animal
+          in: query
+          description: Filtrar por tipo de animal
+          schema:
+            type: string
+            enum: [perro, gato, pajaro, conejo, otro]
+        - name: raza
+          in: query
+          description: Filtrar por raza
+          schema:
+            type: string
+        - name: color
+          in: query
+          description: Filtrar por color
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Número de página
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Resultados por página
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Lista de ubicaciones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                  count:
+                    type: integer
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Crear nueva ubicación
+      tags:
+        - Ubicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+      responses:
+        '201':
+          description: Ubicación creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Location'
+        '400':
+          description: Datos inválidos
+
+  /api/ubicaciones/{id}:
+    get:
+      summary: Obtener ubicación por ID
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Ubicación encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Location'
+        '404':
+          description: Ubicación no encontrada
+
+    put:
+      summary: Actualizar ubicación
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreate'
+      responses:
+        '200':
+          description: Ubicación actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Location'
+
+    delete:
+      summary: Eliminar ubicación
+      tags:
+        - Ubicaciones
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Ubicación eliminada
+        '404':
+          description: Ubicación no encontrada
+
+  /api/ubicaciones/buscar_cercanos:
+    post:
+      summary: Buscar ubicaciones cercanas
+      tags:
+        - Ubicaciones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProximitySearch'
+      responses:
+        '200':
+          description: Reportes cercanos encontrados
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LocationWithDistance'
+                  count:
+                    type: integer
+
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        reporte_id:
+          type: string
+        pet_id:
+          type: string
+        usuario_id:
+          type: string
+          nullable: true
+        latitud:
+          type: number
+          format: float
+        longitud:
+          type: number
+          format: float
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        tipo_reporte:
+          type: string
+          enum: [perdido, encontrado]
+        tipo_animal:
+          type: string
+        raza_probable:
+          type: string
+        color:
+          type: string
+        tamaño:
+          type: string
+        fecha_reporte:
+          type: string
+          format: date-time
+        fecha_creacion:
+          type: string
+          format: date-time
+
+    LocationCreate:
+      type: object
+      required:
+        - reporte_id
+        - pet_id
+        - latitud
+        - longitud
+        - tipo_reporte
+      properties:
+        reporte_id:
+          type: string
+        pet_id:
+          type: string
+        usuario_id:
+          type: string
+          nullable: true
+        latitud:
+          type: number
+          format: float
+        longitud:
+          type: number
+          format: float
+        titulo:
+          type: string
+        descripcion:
+          type: string
+        tipo_reporte:
+          type: string
+          enum: [perdido, encontrado]
+        tipo_animal:
+          type: string
+        raza_probable:
+          type: string
+        color:
+          type: string
+        tamaño:
+          type: string
+
+    LocationWithDistance:
+      allOf:
+        - $ref: '#/components/schemas/Location'
+        - type: object
+          properties:
+            distancia_km:
+              type: number
+              format: float
+
+    ProximitySearch:
+      type: object
+      required:
+        - latitud
+        - longitud
+        - radio_km
+      properties:
+        latitud:
+          type: number
+          format: float
+        longitud:
+          type: number
+          format: float
+        radio_km:
+          type: number
+          format: float
+          minimum: 0.1
+          maximum: 100
+        tipo_reporte:
+          type: string
+          enum: [perdido, encontrado, ambos]
+          default: ambos
+        limite:
+          type: integer
+          default: 50
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_count:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean

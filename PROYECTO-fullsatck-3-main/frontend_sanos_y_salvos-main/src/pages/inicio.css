@@ -1,0 +1,76 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.inicio-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F7F9FC;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+.page-placeholder {
+  padding: 80px 20px;
+  text-align: center;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F7F9FC 0%, #E8F1FF 50%, #FCF5F1 100%);
+}
+
+.page-placeholder h2 {
+  font-size: 48px;
+  color: #2D4059;
+  margin-bottom: 20px;
+  font-weight: 800;
+}
+
+.page-placeholder p {
+  font-size: 18px;
+  color: #70D6BC;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .inicio-page {
+    font-size: 14px;
+  }
+
+  .page-placeholder {
+    padding: 50px 15px;
+    min-height: 50vh;
+  }
+
+  .page-placeholder h2 {
+    font-size: 32px;
+  }
+
+  .page-placeholder p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inicio-page {
+    font-size: 12px;
+  }
+
+  .page-placeholder {
+    padding: 30px 10px;
+    min-height: 40vh;
+  }
+
+  .page-placeholder h2 {
+    font-size: 24px;
+  }
+
+  .page-placeholder p {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: geo-service-db
+    environment:
+      POSTGRES_DB: geo_service
+      POSTGRES_USER: geo_user
+      POSTGRES_PASSWORD: geo_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geo_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  geo-service:
+    build: .
+    container_name: geo-service
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      DEBUG: "False"
+      SECRET_KEY: "${SECRET_KEY:-django-insecure-geo-service-dev}"
+      DATABASE_ENGINE: "django.db.backends.postgresql"
+      DATABASE_NAME: "geo_service"
+      DATABASE_USER: "geo_user"
+      DATABASE_PASSWORD: "geo_password"
+      DATABASE_HOST: "postgres"
+      DATABASE_PORT: "5432"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
