@@ -93,6 +93,16 @@ class TestPetImageSerializer:
         s = PetImageSerializer(instance=pet)
         assert 'image' in s.data
         assert s.data['image']  # tiene path/url
+        # Nuevo: image_url debe ser absoluta para que el navegador la cargue
+        assert 'image_url' in s.data
+        assert s.data['image_url'].startswith('http')
+        assert '/media/' in s.data['image_url']
+
+    def test_serializer_image_url_uses_env_base(self, monkeypatch):
+        monkeypatch.setenv('MEDIA_PUBLIC_URL', 'http://media.example.com')
+        pet = PetImage.objects.create(image=_make_image(), pet_id='p-3')
+        s = PetImageSerializer(instance=pet)
+        assert s.data['image_url'].startswith('http://media.example.com/media/')
 
 
 # =====================================================================

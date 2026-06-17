@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import ChatWindow from '../Chat/ChatWindow';
 import MatchResults from '../MatchResults/MatchResults';
 import { useFindMatches } from '../../hooks/useFindMatches';
+import { resolveImageUrl } from '../../utils/imageUrl';
 import './ReportDetailModal.css';
 
 function formatDate(dateString) {
@@ -96,8 +97,13 @@ export default function ReportDetailModal({ report, isOpen, onClose, currentUser
         </header>
 
         <div className="report-modal-body">
-          {report.imagen_url ? (
-            <img src={report.imagen_url} alt={report.titulo} className="report-image" />
+          {resolveImageUrl(report.imagen_url) ? (
+            <img
+              src={resolveImageUrl(report.imagen_url)}
+              alt={report.titulo || 'Foto del reporte'}
+              className="report-image"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
           ) : (
             <div className="report-image-placeholder" aria-hidden="true">Sin foto</div>
           )}

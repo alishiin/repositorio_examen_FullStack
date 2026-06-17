@@ -3,6 +3,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapSection.css';
 import ReportDetailModal from '../ReportDetailModal/ReportDetailModal';
 import { useAuth } from '../../hooks/useAuth';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 // Importar mapboxgl de forma compatible con Vite
 import mapboxglModule from 'mapbox-gl';
@@ -268,11 +269,12 @@ export default function MapSection({ setShowMap }) {
               <span>{selectedLocation.descripcion}</span>
             </div>
 
-            {selectedLocation.imagen_url && (
+            {resolveImageUrl(selectedLocation.imagen_url) && (
               <img
-                src={selectedLocation.imagen_url}
-                alt={selectedLocation.titulo}
+                src={resolveImageUrl(selectedLocation.imagen_url)}
+                alt={selectedLocation.titulo || 'Foto del reporte'}
                 className="report-popup-image"
+                onError={(e) => { e.target.style.display = 'none'; }}
               />
             )}
 
