@@ -2,7 +2,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { chatServiceClient } from '../services/api';
 
 /**
- * Hook para gestionar conexiones de chat por WebSocket
+ * Hook para gestionar conexiones de chat por WebSocket.
+ *
+ * IMPORTANTE — comportamiento bajo React.StrictMode (React 18+ en dev):
+ *   StrictMode monta -> desmonta -> remonta cada efecto. Si el cleanup
+ *   chequea readyState antes de cerrar el WS, las conexiones en
+ *   CONNECTING se filtran y terminamos con 2 sockets vivos en la misma
+ *   sala (cada mensaje llega duplicado). Por eso:
+ *     - usamos un flag `cancelled` para bloquear handlers stale
+ *     - capturamos el WS en una var local del closure
+ *     - llamamos close() sin chequear readyState (es seguro en cualquier
+ *       estado segun spec WHATWG)
+ *
  * @param {string} roomName - Nombre de la sala de chat
  * @returns { ws, isConnected, messages, error, sendMessage }
  */
@@ -12,45 +23,65 @@ export const useChat = (roomName) => {
   const [error, setError] = useState(null);
   const wsRef = useRef(null);
 
-  // Conectar a la sala
   useEffect(() => {
     if (!roomName) return;
 
+    let cancelled = false;
+    let localWs = null;
+
     const connectToChat = async () => {
       try {
-        // Validar acceso a la sala
         const validation = await chatServiceClient.validateRoomAccess(roomName);
-        
+        if (cancelled) return;
+
         if (!validation.authorized) {
           setError('No autorizado para acceder a esta sala');
           return;
         }
 
-        // Conectar con WebSocket
         const ws = chatServiceClient.connectToRoom(roomName);
+        localWs = ws;
+
+        // Si fuimos cancelados mientras armabamos la conexion, cerrar.
+        if (cancelled) {
+          try { ws.close(); } catch { /* noop */ }
+          return;
+        }
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log(`✅ Conectado a sala: ${roomName}`);
+          if (cancelled) {
+            try { ws.close(); } catch { /* noop */ }
+            return;
+          }
+          console.log(`Conectado a sala: ${roomName}`);
           setIsConnected(true);
           setError(null);
         };
 
         ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          setMessages((prev) => [...prev, data]);
+          if (cancelled) return;
+          try {
+            const data = JSON.parse(event.data);
+            setMessages((prev) => [...prev, data]);
+          } catch (err) {
+            console.error('Error parseando mensaje WS:', err);
+          }
         };
 
         ws.onerror = (err) => {
-          console.error('❌ WebSocket Error:', err);
-          setError('Error de conexión');
+          if (cancelled) return;
+          console.error('WebSocket Error:', err);
+          setError('Error de conexion');
         };
 
         ws.onclose = () => {
+          if (cancelled) return;
           console.log('Desconectado de chat');
           setIsConnected(false);
         };
       } catch (err) {
+        if (cancelled) return;
         console.error('Error conectando a chat:', err);
         setError(err.message);
       }
@@ -59,9 +90,12 @@ export const useChat = (roomName) => {
     connectToChat();
 
     return () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
-      }
+      cancelled = true;
+      // close() es seguro en cualquier readyState (CONNECTING/OPEN/CLOSING/CLOSED).
+      // Cerramos AMBAS refs para cubrir cualquier timing.
+      try { localWs?.close(); } catch { /* noop */ }
+      try { wsRef.current?.close(); } catch { /* noop */ }
+      wsRef.current = null;
     };
   }, [roomName]);
 
