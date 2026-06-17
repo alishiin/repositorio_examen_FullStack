@@ -6,6 +6,9 @@
 
 set -e
 
+QUIET=false
+[ "$1" = "--quiet" ] && QUIET=true
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
 SERVICES=(
@@ -23,11 +26,11 @@ for service_path in "${SERVICES[@]}"; do
   NAME=$(basename "$service_path")
 
   if [ ! -d "$FULL_PATH/.venv" ]; then
-    echo "[skip] $NAME - sin .venv (corre ./start-all.sh primero para crearlo)"
+    [ "$QUIET" = false ] && echo "[skip] $NAME - sin .venv (corre ./start-all.sh primero para crearlo)"
     continue
   fi
 
-  echo "[$NAME] creando superuser admin/admin123..."
+  [ "$QUIET" = false ] && echo "[$NAME] creando superuser admin/admin123..."
   cd "$FULL_PATH"
   # shellcheck disable=SC1091
   source .venv/bin/activate
@@ -65,6 +68,9 @@ PYEOF
 done
 
 echo ""
+if [ "$QUIET" = true ]; then
+    exit 0
+fi
 echo "============================================"
 echo "  Superusers creados en TODOS los servicios"
 echo "============================================"

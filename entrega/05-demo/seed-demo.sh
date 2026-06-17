@@ -3,6 +3,10 @@
 # REQUIERE: UserService corriendo (puerto 8002) y migrate aplicado.
 
 set -e
+
+QUIET=false
+[ "$1" = "--quiet" ] && QUIET=true
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 USER_PATH="$ROOT/PROYECTO-fullsatck-3-main/apis/microservicios_auth_user-main/auth_user_services/UserService"
 
@@ -55,6 +59,10 @@ print(f"  -> creado: {u.email}")
 PYEOF
 
 deactivate
+
+if [ "$QUIET" = true ]; then
+    exit 0
+fi
 
 echo ""
 echo -e "${GREEN}Datos demo creados:${NC}"

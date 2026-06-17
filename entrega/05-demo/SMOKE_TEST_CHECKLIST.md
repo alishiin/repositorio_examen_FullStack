@@ -102,19 +102,21 @@ curl -X POST http://localhost:5000/api/notifications/trigger-match \
 
 ### F. Django Admin (inspeccionar DB)
 
-Cada microservicio tiene su propia DB y su propio admin. Para crear superusers
-en todos a la vez (admin/admin123):
+Los superusers se crean automaticamente al correr `./start-all.sh`.
+Login con `admin/admin123` en cualquier microservicio:
 
+- [ ] http://localhost:8003/admin/geo_app/location/ -> Reportes (editar estado inline)
+- [ ] http://localhost:8005/admin/match_app/matchresult/ -> Coincidencias con score
+- [ ] http://localhost:8007/admin/notification_app/notification/ -> Notificaciones
+- [ ] http://localhost:8002/admin/users/user/ -> Usuarios registrados
+- [ ] http://localhost:8001/admin/ -> AuthService
+- [ ] http://localhost:8004/admin/ -> ChatService
+- [ ] http://localhost:8006/admin/ -> MediaService
+
+Si por algun motivo no podes entrar, re-correr manualmente:
 ```bash
 ./entrega/05-demo/seed-admins.sh
 ```
-
-Despues de eso podes entrar con `admin/admin123` a cualquiera:
-- [ ] http://localhost:8003/admin/geo_app/location/ -> Reportes (cambiar estado, filtrar por tipo/animal)
-- [ ] http://localhost:8005/admin/match_app/matchresult/ -> Coincidencias detectadas
-- [ ] http://localhost:8007/admin/ -> Notificaciones
-- [ ] http://localhost:8002/admin/users/user/ -> Usuarios registrados
-- [ ] Cada microservicio expone su admin en su propio puerto (`:8001/admin/`, `:8004/admin/`, `:8006/admin/`)
 
 ---
 

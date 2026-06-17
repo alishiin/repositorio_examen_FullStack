@@ -44,14 +44,31 @@ Los demas microservicios se acceden via BFF por el patron API Gateway.
 
 ## Ejecutar desde cero
 
-### Opcion A: Automatico (recomendado)
 ```bash
 ./start-all.sh
 ```
 Primera vez: 2-3 min (crea venvs e instala deps). Siguientes: ~10s.
+Auto-crea superusers `admin/admin123` en los 7 microservicios.
+Abre el navegador en http://localhost:5173 automaticamente.
 Logs en `logs/<servicio>.log`. PIDs en `.pids/`.
 
-### Opcion B: Manual (una terminal por servicio)
+### Opciones de start-all.sh
+
+| Flag | Descripcion |
+|---|---|
+| `--fresh` | Borra TODAS las DBs SQLite, re-migra desde 0, crea admins + usuarios demo. Pide confirmacion. |
+| `--no-seed` | No corre seed-admins (no crea superusers automaticamente). |
+| `--no-browser` | No abre el navegador al final. |
+| `-h`, `--help` | Muestra ayuda. |
+
+Ejemplos:
+```bash
+./start-all.sh                  # arranca normal + crea admins
+./start-all.sh --fresh          # reset total: borra DBs + migra + admins + usuarios demo
+./start-all.sh --no-browser     # arranca sin abrir navegador (util para CI/headless)
+```
+
+### Opcion manual (una terminal por servicio)
 Ver `entrega/05-demo/MANUAL_COMMANDS.md` para los comandos paso a paso.
 
 ### Detener todo
@@ -59,20 +76,26 @@ Ver `entrega/05-demo/MANUAL_COMMANDS.md` para los comandos paso a paso.
 ./stop-all.sh
 ```
 
-## Datos de demostracion
+## Credenciales por defecto
 
-Usuarios de prueba en UserService:
+| Rol | Usuario | Password | Acceso |
+|---|---|---|---|
+| Admin de cada microservicio | `admin` | `admin123` | `http://localhost:<puerto>/admin/` |
+| Usuario demo (solo con `--fresh`) | `demo@example.cl` | `demo1234` | Login del frontend |
+
+## Datos de demostracion manual
+
+Si NO usaste `--fresh` pero queres crear los usuarios demo despues:
 ```bash
 ./entrega/05-demo/seed-demo.sh
 ```
-Crea: `admin@sanosysalvos.cl / admin123` (superuser) y `demo@example.cl / demo1234`.
+Crea: `admin@sanosysalvos.cl / admin123` (superuser de UserService) y `demo@example.cl / demo1234`.
 
-Superusers para los Django admin de TODOS los microservicios (cada uno tiene su propia DB):
+Si por algun motivo el admin de algun microservicio no te deja entrar, re-correr:
 ```bash
 ./entrega/05-demo/seed-admins.sh
 ```
-Crea `admin / admin123` en los 7 microservicios. Despues podes entrar a cualquier admin
-(`localhost:8001..8007/admin/`) con las mismas credenciales.
+Idempotente. Recrea `admin/admin123` en los 7 microservicios.
 
 ## Variables de entorno
 
