@@ -11,6 +11,21 @@ const proxy = httpProxy.createProxyServer({
   timeout: 30000,
 });
 
+// FIX CRITICO: re-escribir el body JSON al stream proxy.
+// express.json() en server.js ya consumio el body original, asi que
+// http-proxy enviaria un stream vacio y la request se cuelga hasta
+// timeout (ERR_EMPTY_RESPONSE en el cliente). Aqui lo re-serializamos
+// desde req.body. NO aplica a multipart (match/media), solo a JSON.
+proxy.on('proxyReq', (proxyReq, req) => {
+  if (!req.body || typeof req.body !== 'object') return;
+  const contentType = proxyReq.getHeader('Content-Type') || 'application/json';
+  if (!String(contentType).includes('application/json')) return;
+  const bodyData = JSON.stringify(req.body);
+  proxyReq.setHeader('Content-Type', 'application/json');
+  proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+  proxyReq.write(bodyData);
+});
+
 proxy.on('error', (err, req, res) => {
   console.error('Geo Proxy Error:', err.message);
   if (!res.headersSent) {
