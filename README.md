@@ -60,10 +60,19 @@ Ver `entrega/05-demo/MANUAL_COMMANDS.md` para los comandos paso a paso.
 ```
 
 ## Datos de demostracion
+
+Usuarios de prueba en UserService:
 ```bash
 ./entrega/05-demo/seed-demo.sh
 ```
 Crea: `admin@sanosysalvos.cl / admin123` (superuser) y `demo@example.cl / demo1234`.
+
+Superusers para los Django admin de TODOS los microservicios (cada uno tiene su propia DB):
+```bash
+./entrega/05-demo/seed-admins.sh
+```
+Crea `admin / admin123` en los 7 microservicios. Despues podes entrar a cualquier admin
+(`localhost:8001..8007/admin/`) con las mismas credenciales.
 
 ## Variables de entorno
 
