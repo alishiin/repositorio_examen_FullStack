@@ -19,7 +19,7 @@ export default function MapSection({ setShowMap }) {
   const map = useRef(null);
   const markers = useRef({});
 
-  const API_BASE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:8001/api';
+  const API_BASE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     fetchLocations();
