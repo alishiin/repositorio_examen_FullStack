@@ -166,12 +166,12 @@ export const chatServiceClient = {
    * @returns {WebSocket} - Conexión WebSocket activa
    */
   connectToRoom(roomName) {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = window.location.hostname;
-    const wsPort = window.location.port ? `:${window.location.port}` : '';
-    const wsUrl = `${wsProtocol}//${wsHost}${wsPort}/ws/chat/${roomName}/`;
-    
-    console.log(`🔗 Conectando a sala ${roomName}:`, wsUrl);
+    // Permite override via VITE_CHAT_WS_URL (ej: ws://localhost:8004 en dev).
+    // Si no esta definido, cae a window.location (asume reverse-proxy o produccion same-origin).
+    const wsBase = import.meta.env.VITE_CHAT_WS_URL
+      || `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
+    const wsUrl = `${wsBase}/ws/chat/${roomName}/`;
+    console.log(`Conectando a sala ${roomName}:`, wsUrl);
     return new WebSocket(wsUrl);
   },
 };
