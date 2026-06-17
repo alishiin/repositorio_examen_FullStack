@@ -37,6 +37,12 @@ class Location(models.Model):
         ('grande', 'Grande (30-50 kg)'),
         ('muy_grande', 'Muy Grande (50+ kg)'),
     ]
+
+    ESTADO_CHOICES = [
+        ('activo', 'Activo'),
+        ('resuelto', 'Resuelto'),
+        ('cerrado', 'Cerrado'),
+    ]
     
     # Identificadores (referencias a otros servicios)
     id = models.AutoField(primary_key=True)
@@ -107,6 +113,14 @@ class Location(models.Model):
         blank=True,
         null=True,
         help_text="URL de la imagen del reporte (Media Service)"
+    )
+
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='activo',
+        db_index=True,
+        help_text="Estado del reporte: activo (vigente), resuelto (mascota encontrada/devuelta), cerrado"
     )
     
     # Timestamps

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { COMUNAS_RM } from '../../constants/comunas';
 import './AuthModal.css';
 
 export default function AuthModal({ isOpen, onClose }) {
@@ -323,15 +324,19 @@ export default function AuthModal({ isOpen, onClose }) {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="comuna">Comuna</label>
-                  <input
-                    type="text"
+                  <select
                     id="comuna"
                     name="comuna"
-                    placeholder="Santiago"
                     value={formData.comuna}
                     onChange={handleChange}
                     disabled={loading}
-                  />
+                    required
+                  >
+                    <option value="">Selecciona tu comuna</option>
+                    {COMUNAS_RM.map((comuna) => (
+                      <option key={comuna} value={comuna}>{comuna}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

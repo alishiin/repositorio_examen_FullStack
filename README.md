@@ -1,121 +1,29 @@
-# Sanos y Salvos - Plataforma de Mascotas Perdidas
+# Sanos y Salvos
+
+Plataforma fullstack para reportar y encontrar mascotas perdidas en Chile.
+Arquitectura de microservicios con BFF (Backend-For-Frontend) y 7 microservicios Django.
 
 ## Equipo
 - Yamil Apablaza
 - Alvaro Del Canto
 - Santiago Vargas
 
-**Asignatura**: Desarrollo Fullstack III (DSY1106) - Parcial 3
-**Profesor**: Krystian Reymon Delgado Guzman
+Asignatura: Desarrollo Fullstack III (DSY1106) - Parcial 3
+Profesor: Krystian Reymon Delgado Guzman
 
-## Descripcion
-Plataforma web para reportar y encontrar mascotas perdidas, basada en arquitectura de **microservicios** con un **BFF** (Backend-For-Frontend), frontend **React**, **7 microservicios Django** y APIs externas (Google Gemini, Mapbox, The Dog API).
+## Stack
+- Frontend: React 19 + Vite 5 + Mapbox GL
+- BFF: Node.js 20 + Express + http-proxy + Swagger
+- Backend: Django 5 + DRF + SimpleJWT + Channels
+- DB: SQLite (dev) / PostgreSQL + PostGIS (prod)
+- IA: Google Gemini (analisis de imagenes, opcional)
+- Real-time: WebSockets via Daphne (ChatService)
+- Testing: pytest, Jest 30, Vitest 2, ~395 tests, >=94% cov promedio
 
-## Stack Tecnologico
-
-| Capa | Tecnologia |
-|---|---|
-| Frontend | React 19 + Vite 5 + Mapbox GL + Leaflet |
-| BFF | Node.js 20 + Express + Swagger + http-proxy |
-| Backend | Django 5 + DRF + SimpleJWT + Channels + Pillow |
-| DB | SQLite (dev) / PostgreSQL + PostGIS (prod) |
-| IA | Google Gemini (analisis de imagenes de mascotas) |
-| Testing | pytest, Jest 30 (ESM), Vitest 2, React Testing Library, Supertest |
-
-## Como levantar todo localmente
-
-### Pre-requisitos
-- Python 3.11+ (recomendado 3.13)
-- Node.js 18+
-- `uv` (`pip install uv`) o `pip` estandar
-
-### 1. Microservicios Django (un terminal por servicio)
-
-#### AuthService (puerto 8001)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/microservicios_auth_user-main/auth_user_services/AuthService
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver 8001
-```
-
-#### UserService (puerto 8002)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/microservicios_auth_user-main/auth_user_services/UserService
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver 8002
-```
-
-#### GeoService (puerto 8003)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/sanosysalvos-geoservice-main
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver 8003
-```
-
-#### ChatService (puerto 8004)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/chat-services-main
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-daphne -b 0.0.0.0 -p 8004 chat_service_proj.asgi:application
-```
-
-#### MatchService (puerto 8005)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/MatchService-main
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-export GEMINI_API_KEY="<tu-key>"
-python manage.py migrate
-python manage.py runserver 8005
-```
-
-#### MediaService (puerto 8006)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/Media-Service-main
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver 8006
-```
-
-#### NotificationService (puerto 8007)
-```bash
-cd PROYECTO-fullsatck-3-main/apis/NotificacionesServices-main
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver 8007
-```
-
-### 2. BFF (puerto 5000)
-```bash
-cd PROYECTO-fullsatck-3-main/frontend_sanos_y_salvos-main/backend
-npm install
-npm start  # puerto 5000
-```
-
-### 3. Frontend (puerto 5173)
-```bash
-cd PROYECTO-fullsatck-3-main/frontend_sanos_y_salvos-main
-npm install
-npm run dev
-```
-
-Abre [http://localhost:5173](http://localhost:5173) en el navegador.
-
-## Mapa de puertos
-
+## Componentes y puertos
 | Componente | Puerto |
 |---|---|
-| Frontend (Vite) | 5173 |
+| Frontend (React) | 5173 |
 | BFF (Express) | 5000 |
 | AuthService | 8001 |
 | UserService | 8002 |
@@ -125,55 +33,104 @@ Abre [http://localhost:5173](http://localhost:5173) en el navegador.
 | MediaService | 8006 |
 | NotificationService | 8007 |
 
-> **Nota de integracion**: el Frontend habla **directo** con AuthService (`:8001`)
-> y UserService (`:8002`). Los demas microservicios se acceden **via BFF**
-> (`:5000`) por el patron API Gateway. Esto es temporal hasta que las rutas
-> `/api/auth/*` y `/api/pets/*` del BFF dejen de ser stubs locales.
+Nota de integracion: el Frontend habla DIRECTO con AuthService y UserService.
+Los demas microservicios se acceden via BFF por el patron API Gateway.
 
-## Documentacion del entregable
+## Pre-requisitos
+- Python 3.11+ (recomendado 3.13)
+- Node.js 18+
+- uv (`pip install uv`) o pip estandar
+- macOS o Linux (Windows con WSL o Git Bash)
 
-| Documento | Ubicacion |
-|---|---|
-| **Diagrama de arquitectura** | `entrega/01-arquitectura/arquitectura.md` (+ `.html` standalone) |
-| **Estrategia de persistencia** | `entrega/02-persistencia/persistencia.md` |
-| **Informe de pruebas** | `entrega/03-pruebas/informe-pruebas.md` |
-| **Coleccion API (Postman + .http)** | `entrega/04-api-collection/` |
-| **Repositorios** | `entrega/repositorios.txt` |
+## Ejecutar desde cero
+
+### Opcion A: Automatico (recomendado)
+```bash
+./start-all.sh
+```
+Primera vez: 2-3 min (crea venvs e instala deps). Siguientes: ~10s.
+Logs en `logs/<servicio>.log`. PIDs en `.pids/`.
+
+### Opcion B: Manual (una terminal por servicio)
+Ver `entrega/05-demo/MANUAL_COMMANDS.md` para los comandos paso a paso.
+
+### Detener todo
+```bash
+./stop-all.sh
+```
+
+## Datos de demostracion
+```bash
+./entrega/05-demo/seed-demo.sh
+```
+Crea: `admin@sanosysalvos.cl / admin123` (superuser) y `demo@example.cl / demo1234`.
+
+## Variables de entorno
+
+### MatchService (opcional, para analisis IA)
+Crear `apis/MatchService-main/.env`:
+```
+GEMINI_API_KEY=tu-key-de-google-aistudio
+```
+Sin esta key el analisis IA queda en modo degradado (no rompe el flujo).
+
+### Frontend
+Ver `frontend_sanos_y_salvos-main/.env.example`. Defaults locales funcionan sin tocar nada.
 
 ## Tests
+```bash
+# Por servicio Django
+cd apis/<servicio> && source .venv/bin/activate && pytest
 
-| Componente | Tests | Coverage |
-|---|---:|---:|
-| AuthService | 11 | 100% |
-| UserService | 65 | 100% |
-| MatchService | 19 | 100% |
-| MediaService | 16 | 97.6% |
-| NotificationService | 30 | 99.1% |
-| ChatService | 15 | 94.6% |
-| GeoService | 56 | 87.1% |
-| BFF Node | 41 | 96.2% |
-| Frontend React | 84 | 98.6% |
-| **TOTAL** | **337** | **>=94% promedio** |
+# Frontend React
+cd frontend_sanos_y_salvos-main && npm test
 
-Detalle completo en `entrega/03-pruebas/informe-pruebas.md`.
+# BFF Node
+cd frontend_sanos_y_salvos-main/backend && npm test
+```
+
+## Migraciones
+Las aplica `start-all.sh` automaticamente. Manualmente:
+```bash
+cd apis/<servicio> && source .venv/bin/activate && python manage.py migrate
+```
+
+## Documentacion
+| Documento | Ubicacion |
+|---|---|
+| Como funciona el sistema | `entrega/COMO_FUNCIONA.md` |
+| Arquitectura | `entrega/01-arquitectura/` |
+| Persistencia | `entrega/02-persistencia/` |
+| Informe de pruebas | `entrega/03-pruebas/` |
+| API Collection (Postman + .http) | `entrega/04-api-collection/` |
+| Smoke test checklist | `entrega/05-demo/SMOKE_TEST_CHECKLIST.md` |
+| Repositorios | `entrega/repositorios.txt` |
+
+## Acceso al admin Django
+- http://localhost:8001/admin/  - Auth (crear superuser: `python manage.py createsuperuser`)
+- http://localhost:8002/admin/  - Users
+- http://localhost:8003/admin/  - Reportes geolocalizados (cambiar estado activo/resuelto/cerrado)
+- http://localhost:8005/admin/  - Match results y analisis IA
+- http://localhost:8007/admin/  - Notificaciones
 
 ## Swagger / API docs
-- **BFF Swagger UI**: [http://localhost:5000/api-docs](http://localhost:5000/api-docs)
-- **BFF Dashboard**: [http://localhost:5000/docs](http://localhost:5000/docs)
-- **Django Admin** (cada microservicio): `http://localhost:<puerto>/admin/`
+- BFF Swagger UI: http://localhost:5000/api-docs
+- BFF Dashboard: http://localhost:5000/docs
 
 ## Patrones de diseno aplicados
-- **API Gateway** (BFF Express)
-- **Repository** (Django ORM)
-- **Circuit Breaker** (GeoService -> UserService/PetService)
-- **Factory Method** (creacion de tokens JWT en AuthService)
-- **Microservices Architecture** (DB-per-service, 7 servicios independientes)
+- API Gateway (BFF Express)
+- Repository (Django ORM)
+- Circuit Breaker (GeoService -> UserService)
+- Factory Method (tokens JWT en AuthService)
+- Microservices Architecture (DB-per-service, 7 servicios independientes)
 
-Ver detalle en `entrega/01-arquitectura/arquitectura.md`.
+Detalle en `entrega/01-arquitectura/arquitectura.md`.
 
-## Defensa oral
-- Guion: `entrega/DEFENSA.md` (a generar en FASE 4)
-- Preguntas frecuentes: `entrega/PREGUNTAS_FRECUENTES.md` (a generar en FASE 4)
+## Troubleshooting
+- `lsof -i :<puerto>` para ver que servicio escucha
+- `tail -f logs/<servicio>.log` para logs en vivo
+- Si Daphne falla en chat, verificar venv: `cd apis/chat-services-main && source .venv/bin/activate && pip install daphne`
+- Frontend en blanco: Cmd+R o limpiar cache del navegador
 
 ## Licencia
 Uso academico - Parcial 3 DSY1106 - 2026.
