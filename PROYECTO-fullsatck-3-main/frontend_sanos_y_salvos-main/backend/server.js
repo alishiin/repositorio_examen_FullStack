@@ -10,6 +10,7 @@ import matchRoutes from './routes/match.js';
 import mediaRoutes from './routes/media.js';
 import notificationRoutes from './routes/notifications.js';
 import chatRoutes from './routes/chat.js';
+import geoRoutes from './routes/geo.js';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/match', matchRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ubicaciones', geoRoutes);
 
 // Manejo de errores
 app.use((req, res) => {
@@ -76,4 +78,9 @@ app.listen(PORT, () => {
   console.log(`   - POST   /api/notifications/:id/mark-read`);
   console.log(`   - GET    /api/chat/config`);
   console.log(`   - GET    /api/chat/room/:roomName`);
+  console.log(`   Geo (proxy a :8003):`);
+  console.log(`   - GET    /api/ubicaciones/`);
+  console.log(`   - POST   /api/ubicaciones/`);
+  console.log(`   - POST   /api/ubicaciones/buscar_cercanos/`);
+  console.log(`   - GET    /api/ubicaciones/:id/obtener_cercanos/`);
 });

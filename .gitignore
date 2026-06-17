@@ -52,3 +52,7 @@ build/
 
 # OS
 Thumbs.db
+
+# start-all.sh runtime artifacts
+logs/
+.pids/

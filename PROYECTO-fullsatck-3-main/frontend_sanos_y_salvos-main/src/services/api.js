@@ -1,5 +1,5 @@
 // src/services/api.js
-const GEO_SERVICE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:8001/api';
+const GEO_SERVICE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:5000/api';
 const USER_SERVICE_URL = import.meta.env.VITE_USER_SERVICE_URL || 'http://127.0.0.1:8002';
 const AUTH_SERVICE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://127.0.0.1:8003';
 
