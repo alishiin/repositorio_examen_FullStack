@@ -25,12 +25,18 @@ describe('GET /api/chat/config', () => {
   });
 });
 
-describe('GET /api/chat/room/:roomName', () => {
+describe('GET /api/chat/room/:roomName/validate', () => {
   test('200 con room data', async () => {
-    const res = await request(app).get('/api/chat/room/sala-perros');
+    const res = await request(app).get('/api/chat/room/sala-perros/validate');
     expect(res.status).toBe(200);
     expect(res.body.authorized).toBe(true);
     expect(res.body.room).toBe('sala-perros');
     expect(res.body.wsEndpoint).toContain('/ws/chat/sala-perros/');
+  });
+
+  test('tolera trailing slash', async () => {
+    const res = await request(app).get('/api/chat/room/sala-x/validate/');
+    expect(res.status).toBe(200);
+    expect(res.body.room).toBe('sala-x');
   });
 });

@@ -77,7 +77,7 @@ app.listen(PORT, () => {
   console.log(`   - GET    /api/notifications/?user_id=X`);
   console.log(`   - POST   /api/notifications/:id/mark-read`);
   console.log(`   - GET    /api/chat/config`);
-  console.log(`   - GET    /api/chat/room/:roomName`);
+  console.log(`   - GET    /api/chat/room/:roomName/validate`);
   console.log(`   Geo (proxy a :8003):`);
   console.log(`   - GET    /api/ubicaciones/`);
   console.log(`   - POST   /api/ubicaciones/`);

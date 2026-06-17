@@ -28,12 +28,12 @@ router.get('/config', (req, res) => {
 });
 
 /**
- * GET /api/chat/room/:roomName
+ * GET /api/chat/room/:roomName/validate
  * Valida si el usuario puede entrar a una sala de chat
  * Parámetros: roomName (nombre de la sala)
  * Respuesta: { wsUrl, room, authorized, message }
  */
-router.get('/room/:roomName', (req, res) => {
+router.get('/room/:roomName/validate', (req, res) => {
   try {
     const { roomName } = req.params;
     const wsUrl = process.env.CHAT_SERVICE_URL || 'ws://localhost:8004';
