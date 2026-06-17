@@ -14,9 +14,9 @@
     "setup:env": "node scripts/setup-env.js",
     "dev:all": "npm run dev:backend & npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
@@ -31,12 +31,15 @@
     "@testing-library/react": "^16.3.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
-    "jest": "^30.4.2",
-    "vite": "^8.0.10"
+    "jsdom": "^25.0.0",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.9",
+    "@vitest/coverage-v8": "^2.1.9",
+    "@testing-library/user-event": "^14.5.0"
   }
 }
