@@ -4,6 +4,7 @@ import { useGeoService } from '../../hooks/useGeoService';
 import { useAuth } from '../../hooks/useAuth';
 import { useMediaUpload } from '../../hooks/useMediaUpload';
 import { useMatchAnalysis } from '../../hooks/useMatchAnalysis';
+import { matchServiceClient } from '../../services/api';
 import './ReportForm.css';
 
 export function ReportForm({ onSuccess }) {
@@ -101,7 +102,30 @@ export function ReportForm({ onSuccess }) {
         imagen_url,
       });
 
-      setSuccessMessage('¡Reporte creado exitosamente! Se publicará en el mapa.');
+      // Auto-busqueda de coincidencias en segundo plano (no bloqueante).
+      // El backend persiste matches y dispara notificaciones a los otros autores.
+      const newReportId = result?.reporte_id || result?.id;
+      if (newReportId) {
+        matchServiceClient.findMatches({
+          report_id: String(newReportId),
+          tipo_reporte: formData.tipo_reporte,
+          tipo_animal: formData.tipo_animal,
+          raza_probable: formData.raza_probable,
+          color: formData.color,
+          tamano: formData.tamaño,
+          latitud: parseFloat(formData.latitud),
+          longitud: parseFloat(formData.longitud),
+          fecha_reporte: formData.fecha_reporte,
+          titulo: formData.titulo,
+          user_id: user?.id || user?.usuario_id,
+        }).then((r) => {
+          if (r?.matches?.length) {
+            console.log(`${r.matches.length} coincidencias auto-detectadas`);
+          }
+        }).catch((e) => console.warn('Auto-match fallo (no critico):', e?.message));
+      }
+
+      setSuccessMessage('Reporte creado exitosamente! Se publicara en el mapa.');
       
       // Resetear formulario
       setFormData({

@@ -29,7 +29,20 @@ class MatchResult(models.Model):
     is_confirmed = models.BooleanField(
         default=False, help_text="Confirmado por los usuarios"
     )
+    # FASE 3: scoring de coincidencias por metadata (sin IA).
+    score = models.FloatField(
+        default=0.0,
+        help_text="Score 0-100 de la probabilidad de coincidencia",
+    )
+    reasons = models.JSONField(
+        default=list,
+        help_text="Lista de razones del match (misma_raza, zona_cercana, ...)",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Idempotencia: un par lost+found no se repite.
+        unique_together = ('lost_report_id', 'found_report_id')
 
     def __str__(self):
         return f"Coincidencia: Reporte {self.lost_report_id} con {self.found_report_id}"

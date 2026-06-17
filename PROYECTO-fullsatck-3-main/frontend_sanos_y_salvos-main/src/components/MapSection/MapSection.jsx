@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapSection.css';
+import ReportDetailModal from '../ReportDetailModal/ReportDetailModal';
+import { useAuth } from '../../hooks/useAuth';
 
 // Importar mapboxgl de forma compatible con Vite
 import mapboxglModule from 'mapbox-gl';
@@ -15,6 +17,8 @@ export default function MapSection({ setShowMap }) {
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('ambos');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [modalReport, setModalReport] = useState(null);
+  const { user } = useAuth();
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef({});
@@ -310,11 +314,27 @@ export default function MapSection({ setShowMap }) {
                 );
               }}
             >
-              🗺️ Ver en Google Maps
+              Ver en Google Maps
+            </button>
+
+            <button
+              type="button"
+              className="google-maps-btn"
+              style={{ marginTop: 8, background: '#0071ce', color: '#fff' }}
+              onClick={() => setModalReport(selectedLocation)}
+            >
+              Ver detalles, chat y coincidencias
             </button>
           </div>
         )}
       </div>
+
+      <ReportDetailModal
+        report={modalReport}
+        isOpen={!!modalReport}
+        onClose={() => setModalReport(null)}
+        currentUser={user}
+      />
     </section>
   );
 }

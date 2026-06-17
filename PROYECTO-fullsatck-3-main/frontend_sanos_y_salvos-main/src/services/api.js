@@ -218,6 +218,29 @@ export const matchServiceClient = {
     
     return this.analyzePetImage(formData);
   },
+
+  /**
+   * Busca coincidencias por metadata (raza, color, distancia, fecha) contra
+   * los reportes del tipo opuesto. El backend persiste los matches y dispara
+   * notificaciones a los autores de los reportes coincidentes.
+   *
+   * @param {Object} reportData - { report_id, tipo_reporte, tipo_animal,
+   *   raza_probable?, color?, tamano?, latitud, longitud, fecha_reporte?,
+   *   titulo?, user_id? }
+   * @returns {Promise<{matches: Array, total: number}>}
+   */
+  async findMatches(reportData) {
+    const response = await fetch(`${MATCH_SERVICE_URL}/find-matches/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reportData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Error buscando coincidencias');
+    }
+    return await response.json();
+  },
 };
 
 /**
