@@ -1,6 +1,7 @@
 import './AdminPetDetail.css';
 import { useState, useEffect } from 'react';
 import { adminAPI } from '../../api/client';
+import UiDialog from '../UiDialog/UiDialog';
 
 export default function AdminPetDetail({ petId, onBack }) {
   const [pet, setPet] = useState(null);
@@ -11,6 +12,9 @@ export default function AdminPetDetail({ petId, onBack }) {
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRecoverModal, setShowRecoverModal] = useState(false);
+  const [recoveryClinicId, setRecoveryClinicId] = useState('');
+  const [dialog, setDialog] = useState({ open: false, tone: 'info', title: '', message: '' });
   const [editForm, setEditForm] = useState({
     titulo: '', descripcion: '', tipo_reporte: 'perdido', tipo_animal: '',
     raza_probable: '', color: '', 'tamaño': '', estado: 'activo'
@@ -50,9 +54,9 @@ export default function AdminPetDetail({ petId, onBack }) {
     try {
       await adminAPI.approvePet(petId, notes);
       setPet({ ...pet, status: 'approved' });
-      alert('✅ Reporte aprobado exitosamente');
+      setDialog({ open: true, tone: 'success', title: 'Reporte aprobado', message: 'El reporte fue aprobado exitosamente.' });
     } catch (err) {
-      alert('Error al aprobar reporte');
+      setDialog({ open: true, tone: 'error', title: 'No se pudo aprobar', message: err.message || 'Error al aprobar reporte' });
     } finally {
       setActionLoading(false);
     }
@@ -64,36 +68,25 @@ export default function AdminPetDetail({ petId, onBack }) {
       await adminAPI.rejectPet(petId, rejectReason);
       setPet({ ...pet, status: 'rejected' });
       setShowRejectModal(false);
-      alert('❌ Reporte rechazado');
+      setDialog({ open: true, tone: 'warning', title: 'Reporte rechazado', message: 'La publicación fue rechazada.' });
     } catch (err) {
-      alert('Error al rechazar reporte');
+      setDialog({ open: true, tone: 'error', title: 'No se pudo rechazar', message: err.message || 'Error al rechazar reporte' });
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleMarkRecovered = async () => {
-    const clinicId = window.prompt('Ingresa el ID de la clínica:');
-    if (clinicId) {
-      setActionLoading(true);
-      try {
-        await adminAPI.recoverPet(petId, clinicId, new Date().toISOString());
-        setPet({ ...pet, status: 'recovered' });
-        alert('🎉 Mascota marcada como recuperada');
-      } catch (err) {
-        alert('Error al marcar como recuperada');
-      } finally {
-        setActionLoading(false);
-      }
-    }
+    setRecoveryClinicId('');
+    setShowRecoverModal(true);
   };
 
   const handleSaveNotes = async () => {
     try {
       await adminAPI.updatePetNotes(petId, notes);
-      alert(' Notas guardadas');
+      setDialog({ open: true, tone: 'success', title: 'Notas guardadas', message: 'Las notas administrativas se guardaron correctamente.' });
     } catch (err) {
-      alert('Error al guardar notas');
+      setDialog({ open: true, tone: 'error', title: 'No se pudieron guardar', message: err.message || 'Error al guardar notas' });
     }
   };
 
@@ -103,26 +96,55 @@ export default function AdminPetDetail({ petId, onBack }) {
       await adminAPI.updatePet(petId, editForm);
       await fetchPetDetail();
       setShowEditModal(false);
-      alert('Reporte actualizado correctamente');
+      setDialog({ open: true, tone: 'success', title: 'Reporte actualizado', message: 'Los cambios se guardaron correctamente.' });
     } catch (err) {
-      alert('Error al actualizar reporte: ' + (err.message || ''));
+      setDialog({ open: true, tone: 'error', title: 'No se pudo actualizar', message: err.message || 'Error al actualizar reporte' });
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      '¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer.'
-    );
-    if (!confirmed) return;
+    setDialog({
+      open: true,
+      tone: 'warning',
+      title: 'Eliminar reporte',
+      message: '¿Estás seguro de eliminar este reporte? Esta acción no se puede deshacer.',
+      confirmLabel: 'Eliminar',
+      cancelLabel: 'Cancelar',
+      showCancel: true,
+      onCancel: () => setDialog((prev) => ({ ...prev, open: false })),
+      onConfirm: async () => {
+        setDialog((prev) => ({ ...prev, open: false }));
+        await confirmDelete();
+      },
+    });
+    return;
+  };
+
+  const confirmDelete = async () => {
     setActionLoading(true);
     try {
       await adminAPI.deletePet(petId);
-      alert('Reporte eliminado');
+      setDialog({ open: true, tone: 'success', title: 'Reporte eliminado', message: 'El reporte fue eliminado correctamente.' });
       onBack();
     } catch (err) {
-      alert('Error al eliminar reporte');
+      setDialog({ open: true, tone: 'error', title: 'No se pudo eliminar', message: err.message || 'Error al eliminar reporte' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRecoverSubmit = async () => {
+    if (!recoveryClinicId.trim()) return;
+    setActionLoading(true);
+    try {
+      await adminAPI.recoverPet(petId, recoveryClinicId, new Date().toISOString());
+      setPet({ ...pet, status: 'recovered' });
+      setShowRecoverModal(false);
+      setDialog({ open: true, tone: 'success', title: 'Mascota recuperada', message: 'La mascota fue marcada como recuperada.' });
+    } catch (err) {
+      setDialog({ open: true, tone: 'error', title: 'No se pudo marcar', message: err.message || 'Error al marcar como recuperada' });
     } finally {
       setActionLoading(false);
     }
@@ -191,6 +213,18 @@ export default function AdminPetDetail({ petId, onBack }) {
           </span>
         </div>
       </div>
+
+      <UiDialog
+        open={dialog.open}
+        tone={dialog.tone}
+        title={dialog.title}
+        message={dialog.message}
+        confirmLabel={dialog.confirmLabel || 'Aceptar'}
+        cancelLabel={dialog.cancelLabel || 'Cancelar'}
+        showCancel={dialog.showCancel}
+        onCancel={dialog.onCancel}
+        onConfirm={dialog.onConfirm || (() => setDialog((prev) => ({ ...prev, open: false })))}
+      />
 
       <div className="detail-body">
         {/* Información del Reportante */}
@@ -361,6 +395,30 @@ export default function AdminPetDetail({ petId, onBack }) {
             </div>
           </div>
         </div>
+      )}
+
+      {showRecoverModal && (
+        <UiDialog
+          open={showRecoverModal}
+          tone="info"
+          title="Marcar como recuperada"
+          message="Ingresa el ID de la clínica donde fue recuperada la mascota."
+          confirmLabel={actionLoading ? 'Guardando...' : 'Confirmar'}
+          cancelLabel="Cancelar"
+          showCancel
+          onCancel={() => setShowRecoverModal(false)}
+          onConfirm={handleRecoverSubmit}
+        >
+          <label className="recover-input-label">
+            ID de la clínica
+            <input
+              type="text"
+              value={recoveryClinicId}
+              onChange={(e) => setRecoveryClinicId(e.target.value)}
+              placeholder="Ej: 24"
+            />
+          </label>
+        </UiDialog>
       )}
 
       {/* Modal de Edición */}

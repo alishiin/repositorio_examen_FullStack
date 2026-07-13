@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './inicio.css';
 import { useAuth } from '../hooks/useAuth';
 import Header from '../components/Header/Header';
@@ -18,10 +18,36 @@ import Chat from './chat';
 export default function Inicio() {
   const { isAuthenticated } = useAuth();
   const [currentPage, setCurrentPage] = useState('home');
+  const scrollPositionsRef = useRef(new Map());
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const page = window.location.hash.slice(1) || 'home';
+      setCurrentPage(page);
+      const nextPosition = scrollPositionsRef.current.get(page) ?? 0;
+      window.scrollTo(0, nextPosition);
+    };
+
+    const handleBeforeUnload = () => {
+      scrollPositionsRef.current.set(currentPage, window.scrollY);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    handleHashChange();
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [currentPage]);
 
   const handleNavigate = (page) => {
+    scrollPositionsRef.current.set(currentPage, window.scrollY);
     setCurrentPage(page);
-    window.scrollTo(0, 0);
+    window.location.hash = page === 'home' ? '' : `#${page}`;
+    window.scrollTo(0, scrollPositionsRef.current.get(page) ?? 0);
   };
 
   return (

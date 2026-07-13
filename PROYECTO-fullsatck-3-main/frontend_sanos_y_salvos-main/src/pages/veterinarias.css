@@ -1,6 +1,6 @@
 .veterinarias-section {
   padding: 80px 20px;
-  background: linear-gradient(135deg, #F7F9FC 0%, #E8F1FF 50%, #FCF5F1 100%);
+  background: linear-gradient(135deg, #f7f9fc 0%, #e8f1ff 45%, #fcf5f1 100%);
   min-height: 100vh;
 }
 
@@ -12,16 +12,44 @@
 .veterinarias-title {
   font-size: 48px;
   font-weight: 800;
-  color: #2D4059;
+  color: #2d4059;
   text-align: center;
   margin-bottom: 15px;
 }
 
 .veterinarias-subtitle {
   font-size: 16px;
-  color: #70D6BC;
+  color: #6b7280;
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 18px;
+}
+
+.institution-summary {
+  text-align: center;
+  color: #2d4059;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.veterinarias-tabs {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.veterinarias-tabs button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #edf2f7;
+  color: #2d4059;
+  font-weight: 700;
+}
+
+.veterinarias-tabs button.active {
+  background: linear-gradient(135deg, #ff844b, #ff6b2c);
+  color: #fff;
 }
 
 .veterinarias-grid {
@@ -33,7 +61,7 @@
 
 .vet-card {
   background: white;
-  border-radius: 15px;
+  border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -42,14 +70,13 @@
   flex-direction: column;
 }
 
-.vet-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  border-color: #FF844B;
+.vet-card.active {
+  transform: translateY(-6px);
+  border-color: #ff844b;
 }
 
 .vet-header {
-  background: linear-gradient(135deg, #2D4059 0%, #1B2838 100%);
+  background: linear-gradient(135deg, #2d4059 0%, #1b2838 100%);
   color: white;
   padding: 30px;
   text-align: center;
@@ -66,10 +93,6 @@
   justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
-}
-
-.stars {
-  font-size: 18px;
 }
 
 .rating-number {
@@ -92,8 +115,14 @@
 .vet-name {
   font-size: 22px;
   font-weight: 700;
-  color: #2D4059;
+  color: #2d4059;
+  margin-bottom: 8px;
+}
+
+.vet-tagline {
+  color: #6b7280;
   margin-bottom: 20px;
+  line-height: 1.5;
 }
 
 .vet-info {
@@ -118,15 +147,9 @@
 }
 
 .info-row a {
-  color: #FF844B;
+  color: #ff844b;
   text-decoration: none;
   font-weight: 600;
-  transition: color 0.3s;
-}
-
-.info-row a:hover {
-  color: #FF6B2C;
-  text-decoration: underline;
 }
 
 .vet-services {
@@ -136,7 +159,7 @@
 .vet-services h4 {
   font-size: 14px;
   font-weight: 700;
-  color: #2D4059;
+  color: #2d4059;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -150,8 +173,8 @@
 }
 
 .vet-services li {
-  background: #E8F1FF;
-  color: #2D4059;
+  background: #e8f1ff;
+  color: #2d4059;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -180,37 +203,32 @@
 }
 
 .btn-call {
-  background: linear-gradient(135deg, #FF844B, #FF6B2C);
+  background: linear-gradient(135deg, #ff844b, #ff6b2c);
   color: white;
-}
-
-.btn-call:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(255, 20, 147, 0.3);
 }
 
 .btn-email {
   background: white;
-  color: #2D4059;
-  border: 2px solid #2D4059;
+  color: #2d4059;
+  border: 2px solid #2d4059;
 }
 
-.btn-email:hover {
-  background: #f0f4ff;
+.btn-email:hover,
+.btn-call:hover {
   transform: translateY(-2px);
 }
 
 .veterinarias-notice {
   background: linear-gradient(135deg, #fff9e6 0%, #ffe6f0 100%);
-  border-left: 4px solid #FF844B;
+  border-left: 4px solid #ff844b;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: center;
 }
 
 .veterinarias-notice h3 {
   font-size: 18px;
-  color: #2D4059;
+  color: #2d4059;
   margin-bottom: 10px;
   font-weight: 700;
 }
@@ -221,7 +239,33 @@
   line-height: 1.6;
 }
 
-/* Mobile Responsive */
+.institution-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.institution-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #2d4059;
+  font-weight: 600;
+}
+
+.institution-form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.institution-form-grid input,
+.institution-form-grid textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid #d9e0ea;
+  padding: 12px 14px;
+  background: #fff;
+}
+
 @media (max-width: 768px) {
   .veterinarias-section {
     padding: 50px 15px;
@@ -264,10 +308,8 @@
     gap: 8px;
   }
 
-  .btn-call,
-  .btn-email {
-    padding: 10px 12px;
-    font-size: 12px;
+  .institution-form-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -297,14 +339,6 @@
 
   .vet-image {
     font-size: 40px;
-  }
-
-  .rating-number {
-    font-size: 14px;
-  }
-
-  .reviews {
-    font-size: 10px;
   }
 
   .vet-content {

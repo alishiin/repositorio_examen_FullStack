@@ -1,0 +1,26 @@
+{
+  "municipalidad": {
+    "type": "municipalidad",
+    "name": "Municipalidad de Sanos y Salvos",
+    "tagline": "Coordinación comunitaria y gestión territorial para mascotas y vecinos",
+    "logo": "🏛️",
+    "contact": {
+      "email": "municipio@sanosysalvos.cl",
+      "phone": "+56 2 2345 6789",
+      "whatsapp": "+56 9 9988 7766"
+    },
+    "address": "Plaza Central 100, Santiago",
+    "hours": "Lun a Vie 09:00 - 17:30",
+    "description": "Perfil institucional para coordinar campañas, difusión de alertas y apoyo a la comunidad en la recuperación de mascotas.",
+    "services": [
+      "Difusión territorial",
+      "Campañas comunitarias",
+      "Recepción de denuncias",
+      "Coordinación con veterinarias"
+    ],
+    "social": {
+      "instagram": "https://instagram.com",
+      "facebook": "https://facebook.com"
+    }
+  }
+}

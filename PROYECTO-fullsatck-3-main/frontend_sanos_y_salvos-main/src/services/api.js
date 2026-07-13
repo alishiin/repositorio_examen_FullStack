@@ -9,6 +9,7 @@ const CHAT_SERVICE_URL = import.meta.env.VITE_CHAT_SERVICE_URL || `${BFF_URL}/ap
 const MATCH_SERVICE_URL = import.meta.env.VITE_MATCH_SERVICE_URL || `${BFF_URL}/api/match`;
 const MEDIA_SERVICE_URL = import.meta.env.VITE_MEDIA_SERVICE_URL || `${BFF_URL}/api/media`;
 const NOTIFICATION_SERVICE_URL = import.meta.env.VITE_NOTIFICATION_SERVICE_URL || `${BFF_URL}/api/notifications`;
+const PROFILE_SERVICE_URL = import.meta.env.VITE_PROFILE_SERVICE_URL || `${BFF_URL}/api/profiles`;
 
 export const geoServiceClient = {
   async getNearbySpontaneous(latitude, longitude, radiusKm = 10, reportType = 'ambos') {
@@ -97,6 +98,36 @@ export const geoServiceClient = {
     if (!response.ok) throw new Error('Ubicación no encontrada');
     return response.json();
   },
+
+  async updateLocation(id, locationData) {
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/${id}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(locationData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status} al actualizar ubicación`);
+    }
+
+    return response.json();
+  },
+
+  async deleteLocation(id) {
+    const response = await fetch(`${GEO_SERVICE_URL}/ubicaciones/${id}/`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status} al eliminar ubicación`);
+    }
+
+    return response.json();
+  },
 };
 
 export const userServiceClient = {
@@ -166,12 +197,14 @@ export const chatServiceClient = {
    * @param {string} roomName - Nombre de la sala
    * @returns {WebSocket} - Conexión WebSocket activa
    */
-  connectToRoom(roomName) {
-    // Permite override via VITE_CHAT_WS_URL (ej: ws://localhost:8004 en dev).
-    // Si no esta definido, cae a window.location (asume reverse-proxy o produccion same-origin).
-    const wsBase = import.meta.env.VITE_CHAT_WS_URL
-      || `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
-    const wsUrl = `${wsBase}/ws/chat/${roomName}/`;
+  connectToRoom(roomName, wsBaseOverride = '') {
+    const resolvedTarget = wsBaseOverride
+      || import.meta.env.VITE_CHAT_WS_URL
+      || import.meta.env.VITE_CHAT_SERVICE_URL
+      || 'ws://localhost:8004';
+    const wsUrl = resolvedTarget.includes('/ws/chat/')
+      ? resolvedTarget
+      : (resolvedTarget.endsWith('/') ? `${resolvedTarget}ws/chat/${roomName}/` : `${resolvedTarget}/ws/chat/${roomName}/`);
     console.log(`Conectando a sala ${roomName}:`, wsUrl);
     return new WebSocket(wsUrl);
   },
@@ -373,5 +406,67 @@ export const notificationsServiceClient = {
       console.error('Error markAsRead:', error);
       throw error;
     }
+  },
+};
+
+export const institutionProfileClient = {
+  getAdminHeaders() {
+    const adminToken = localStorage.getItem('adminToken');
+    return adminToken
+      ? { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` }
+      : { 'Content-Type': 'application/json' };
+  },
+
+  async getProfile(profileType) {
+    const response = await fetch(`${PROFILE_SERVICE_URL}/${profileType}/`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error obteniendo perfil institucional');
+    }
+    return response.json();
+  },
+
+  async updateProfile(profileType, profileData) {
+    const response = await fetch(`${PROFILE_SERVICE_URL}/${profileType}/`, {
+      method: 'PUT',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error actualizando perfil institucional');
+    }
+
+    return response.json();
+  },
+
+  async createProfile(profileType, profileData) {
+    const response = await fetch(`${PROFILE_SERVICE_URL}/${profileType}/`, {
+      method: 'POST',
+      headers: this.getAdminHeaders(),
+      body: JSON.stringify(profileData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error creando perfil institucional');
+    }
+
+    return response.json();
+  },
+
+  async deleteProfile(profileType) {
+    const response = await fetch(`${PROFILE_SERVICE_URL}/${profileType}/`, {
+      method: 'DELETE',
+      headers: this.getAdminHeaders(),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error eliminando perfil institucional');
+    }
+
+    return response.json();
   },
 };

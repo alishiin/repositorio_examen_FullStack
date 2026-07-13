@@ -1,0 +1,144 @@
+.interaction-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 18, 32, 0.7);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+}
+
+.interaction-modal {
+  width: min(560px, 100%);
+  max-height: min(88vh, 920px);
+  overflow: auto;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 28px 70px rgba(11, 18, 32, 0.35);
+  padding: 24px;
+}
+
+.tone-success .interaction-modal {
+  box-shadow: 0 28px 70px rgba(39, 174, 96, 0.25);
+}
+
+.tone-error .interaction-modal {
+  box-shadow: 0 28px 70px rgba(192, 57, 43, 0.25);
+}
+
+.tone-warning .interaction-modal {
+  box-shadow: 0 28px 70px rgba(243, 156, 18, 0.25);
+}
+
+.interaction-modal-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.interaction-modal-kicker {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+.interaction-modal h3 {
+  margin: 0;
+  color: #2d4059;
+  font-size: 1.35rem;
+}
+
+.interaction-modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e8ecf0;
+  background: #fff;
+  font-size: 1.3rem;
+  color: #2d4059;
+}
+
+.interaction-modal-message {
+  margin: 0 0 16px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.interaction-modal-input {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #d9e0ea;
+  background: #fff;
+  padding: 14px 16px;
+  color: #1f2937;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+.interaction-modal-input:focus {
+  outline: none;
+  border-color: #ff844b;
+  box-shadow: 0 0 0 4px rgba(255, 132, 75, 0.12);
+}
+
+.interaction-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.interaction-modal-btn {
+  min-width: 132px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.interaction-modal-btn:hover {
+  transform: translateY(-1px);
+}
+
+.interaction-modal-btn.primary {
+  background: linear-gradient(135deg, #ff844b 0%, #ff6f3d 100%);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(255, 132, 75, 0.22);
+}
+
+.interaction-modal-btn.secondary {
+  background: #edf2f7;
+  color: #2d4059;
+}
+
+.interaction-modal-btn.danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: #fff;
+}
+
+.interaction-modal-btn.success {
+  background: linear-gradient(135deg, #27ae60 0%, #1f8f4e 100%);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  .interaction-modal {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .interaction-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .interaction-modal-btn {
+    width: 100%;
+  }
+}

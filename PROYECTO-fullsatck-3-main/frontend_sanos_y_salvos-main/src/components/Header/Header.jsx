@@ -23,8 +23,8 @@ export default function Header({ onNavigate, currentPage }) {
     <header className="header">
       <div className="header-top">
         <div className="header-contact">
-          <span>✉️ info@website.com</span>
-          <span>📞 +098987 876 767</span>
+          <span>✉️ Sanos y Salvos</span>
+          <span>📞 +56 9 4782 0482</span>
         </div>
         <div className="header-social">
           <a href="#" className="social-link" title="Facebook">f</a>
@@ -87,6 +87,15 @@ export default function Header({ onNavigate, currentPage }) {
                 className={currentPage === 'faq' ? 'active' : ''}
               >
                 FAQ
+              </a>
+            </li>
+            <li>
+              <a 
+                href="#veterinarias" 
+                onClick={(e) => { e.preventDefault(); handleNavClick('veterinarias'); }}
+                className={currentPage === 'veterinarias' ? 'active' : ''}
+              >
+                Instituciones
               </a>
             </li>
             {isAuthenticated && (

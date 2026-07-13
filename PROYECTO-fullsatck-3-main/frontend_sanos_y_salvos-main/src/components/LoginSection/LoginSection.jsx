@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import UiDialog from '../UiDialog/UiDialog';
 import './LoginSection.css';
 
 export default function LoginSection({ setShowLogin }) {
@@ -6,6 +7,7 @@ export default function LoginSection({ setShowLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, tone: 'success', title: '', message: '' });
 
   const API_BASE_URL = import.meta.env.VITE_AUTH_SERVICE_URL || 'http://localhost:8001';
 
@@ -40,7 +42,7 @@ export default function LoginSection({ setShowLogin }) {
         localStorage.setItem('user', JSON.stringify(data.user));
       }
 
-      alert('Login successful!');
+      setDialog({ open: true, tone: 'success', title: 'Inicio de sesión', message: 'Login successful!' });
       setShowLogin(false);
     } catch (err) {
       setError(err.message || 'Error during login. Please try again.');
@@ -109,6 +111,15 @@ export default function LoginSection({ setShowLogin }) {
           <p>Your information is secure with us</p>
         </div>
       </div>
+
+      <UiDialog
+        open={dialog.open}
+        tone={dialog.tone}
+        title={dialog.title}
+        message={dialog.message}
+        confirmLabel="Aceptar"
+        onConfirm={() => setDialog((prev) => ({ ...prev, open: false }))}
+      />
     </section>
   );
 }

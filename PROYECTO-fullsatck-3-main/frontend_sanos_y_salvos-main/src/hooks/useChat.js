@@ -39,7 +39,7 @@ export const useChat = (roomName) => {
           return;
         }
 
-        const ws = chatServiceClient.connectToRoom(roomName);
+        const ws = chatServiceClient.connectToRoom(roomName, validation.wsEndpoint || validation.wsUrl);
         localWs = ws;
 
         // Si fuimos cancelados mientras armabamos la conexion, cerrar.

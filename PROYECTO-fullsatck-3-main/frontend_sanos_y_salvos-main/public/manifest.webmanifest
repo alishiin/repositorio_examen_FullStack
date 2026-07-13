@@ -1,0 +1,34 @@
+{
+  "name": "Sanos y Salvos",
+  "short_name": "SanosSalvos",
+  "description": "Plataforma para reportar, buscar y coordinar mascotas perdidas y encontradas.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7f9fc",
+  "theme_color": "#2d4059",
+  "lang": "es-CL",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Reportar mascota",
+      "short_name": "Reportar",
+      "url": "/#buscar-cercanos",
+      "description": "Abrir el formulario de reporte"
+    },
+    {
+      "name": "Mapa",
+      "short_name": "Mapa",
+      "url": "/#map",
+      "description": "Abrir el mapa de reportes"
+    }
+  ]
+}

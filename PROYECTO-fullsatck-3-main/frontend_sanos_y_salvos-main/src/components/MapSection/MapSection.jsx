@@ -16,19 +16,92 @@ export default function MapSection({ setShowMap }) {
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [geoStatus, setGeoStatus] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
   const [filtro, setFiltro] = useState('ambos');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showReports, setShowReports] = useState(false);
   const [modalReport, setModalReport] = useState(null);
   const { user } = useAuth();
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef({});
+  const userMarker = useRef(null);
+  const [mapReady, setMapReady] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_GEO_SERVICE_URL || 'http://localhost:5000/api';
+
+  const centerOnUserLocation = () => {
+    if (userLocation && map.current) {
+      map.current.flyTo({
+        center: [userLocation.lng, userLocation.lat],
+        zoom: 14,
+        duration: 900,
+      });
+      userMarker.current?.togglePopup?.();
+      return;
+    }
+
+    locateUser();
+  };
 
   useEffect(() => {
     fetchLocations();
   }, [filtro]);
+
+  useEffect(() => {
+    locateUser();
+  }, []);
+
+  useEffect(() => {
+    if (!mapReady || !map.current || !userLocation) return;
+
+    userMarker.current?.remove();
+    userMarker.current = new mapboxgl.Marker({ color: '#2D4059' })
+      .setLngLat([userLocation.lng, userLocation.lat])
+      .setPopup(new mapboxgl.Popup({ offset: 24 }).setText('Tu ubicación actual'))
+      .addTo(map.current);
+
+    map.current.flyTo({
+      center: [userLocation.lng, userLocation.lat],
+      zoom: 14,
+      duration: 900,
+    });
+  }, [userLocation, mapReady]);
+
+  const locateUser = () => {
+    if (!navigator.geolocation) {
+      setGeoStatus('Tu navegador no soporta geolocalización.');
+      return;
+    }
+
+    setGeoStatus('Solicitando ubicación...');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        setUserLocation(nextLocation);
+        setGeoStatus('Ubicación actual obtenida correctamente.');
+
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setGeoStatus('No concediste permiso de ubicación. Puedes usar el mapa manualmente.');
+          return;
+        }
+
+        setGeoStatus('No fue posible obtener tu ubicación. Intenta nuevamente.');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
 
   const fetchLocations = async () => {
     setLoading(true);
@@ -68,7 +141,7 @@ export default function MapSection({ setShowMap }) {
       
       if (reportes.length > 0) {
         setLocations(reportes);
-        setSelectedLocation(reportes[0]);
+        setSelectedLocation(null);
         console.log('✅ Datos REALES cargados correctamente');
       } else {
         console.warn('⚠️ No hay reportes en la API');
@@ -79,6 +152,7 @@ export default function MapSection({ setShowMap }) {
       console.log('📌 Mostrando fallback de demo ...');
       
       // FALLBACK - Solo mostrar si la API falla
+      setSelectedLocation(null);
       const demoLocations = [
         {
           id: 1,
@@ -108,7 +182,6 @@ export default function MapSection({ setShowMap }) {
         }
       ];
       setLocations(demoLocations);
-      setSelectedLocation(demoLocations[0]);
     } finally {
       setLoading(false);
     }
@@ -125,14 +198,23 @@ export default function MapSection({ setShowMap }) {
       zoom: 12
     });
 
+    setMapReady(true);
+
     return () => {
+      userMarker.current?.remove();
       if (map.current) map.current.remove();
+      map.current = null;
+      setMapReady(false);
     };
   }, []);
 
   // Agregar marcadores cuando cambien locations o selectedLocation
   useEffect(() => {
-    if (!map.current || locations.length === 0) return;
+    if (!map.current || !showReports || locations.length === 0) {
+      Object.values(markers.current).forEach((marker) => marker.remove());
+      markers.current = {};
+      return;
+    }
 
     Object.values(markers.current).forEach(marker => marker.remove());
     markers.current = {};
@@ -163,14 +245,7 @@ export default function MapSection({ setShowMap }) {
       markers.current[location.id] = marker;
     });
 
-    if (selectedLocation && map.current) {
-      map.current.flyTo({
-        center: [selectedLocation.longitud, selectedLocation.latitud],
-        zoom: 15,
-        duration: 1000
-      });
-    }
-  }, [locations, selectedLocation]);
+  }, [locations, selectedLocation, showReports]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -186,6 +261,20 @@ export default function MapSection({ setShowMap }) {
   return (
     <section className="map-section">
       <button className="close-btn" onClick={() => setShowMap(false)}>✕</button>
+      <button
+        type="button"
+        className="recenter-map-btn"
+        onClick={centerOnUserLocation}
+        aria-label="Centrar mi ubicación actual"
+        title="Centrar mi ubicación actual"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+          <path d="M12 2.8v3.1M12 18.1v3.1M2.8 12h3.1M18.1 12h3.1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+        <span>Centrar ubicación</span>
+      </button>
       
       <div className="map-wrapper">
         <div ref={mapContainer} className="mapbox-container"></div>
@@ -200,6 +289,25 @@ export default function MapSection({ setShowMap }) {
             <>
               <div className="sidebar-filters">
                 <h3>🔍 Filtros</h3>
+
+                <button type="button" className="geo-btn geo-btn-focus" onClick={centerOnUserLocation}>
+                  <span aria-hidden="true">📍</span>
+                  <span>Centrar mi ubicación actual</span>
+                </button>
+
+                <button type="button" className="geo-btn" onClick={locateUser}>
+                  📍 Actualizar mi ubicación
+                </button>
+
+                <button
+                  type="button"
+                  className="geo-btn geo-btn-ghost"
+                  onClick={() => setShowReports((current) => !current)}
+                >
+                  {showReports ? '🙈 Ocultar reportes' : '👁️ Ver reportes'}
+                </button>
+
+                {geoStatus && <p className="geo-status">{geoStatus}</p>}
                 
                 <div className="filter-group">
                   <label>Tipo de Reporte</label>
@@ -219,43 +327,52 @@ export default function MapSection({ setShowMap }) {
                 </p>
               </div>
 
-              <h3 className="reports-title">📋 Reportes</h3>
-              <div className="locations-list">
-                {locations.map(location => (
-                  <div
-                    key={location.id}
-                    className={`location-item ${selectedLocation?.id === location.id ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedLocation(location);
-                      map.current?.flyTo({
-                        center: [location.longitud, location.latitud],
-                        zoom: 15,
-                        duration: 1000
-                      });
-                    }}
-                    style={{ 
-                      borderLeftColor: location.tipo_reporte === 'perdido' ? '#ff6b6b' : '#51cf66' 
-                    }}
-                  >
-                    <div className="location-icon">
-                      {location.tipo_reporte === 'perdido' ? '🔍' : '✅'}
-                    </div>
-                    <div className="location-info">
-                      <h4>{location.titulo}</h4>
-                      <p className="animal-type">
-                        {location.tipo_animal} • {location.raza_probable}
-                      </p>
-                      <p className="report-date">{formatDate(location.fecha_reporte)}</p>
-                    </div>
+              {showReports ? (
+                <>
+                  <h3 className="reports-title">📋 Reportes</h3>
+                  <div className="locations-list">
+                    {locations.map(location => (
+                      <div
+                        key={location.id}
+                        className={`location-item ${selectedLocation?.id === location.id ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedLocation(location);
+                          map.current?.flyTo({
+                            center: [location.longitud, location.latitud],
+                            zoom: 15,
+                            duration: 1000
+                          });
+                        }}
+                        style={{ 
+                          borderLeftColor: location.tipo_reporte === 'perdido' ? '#ff6b6b' : '#51cf66' 
+                        }}
+                      >
+                        <div className="location-icon">
+                          {location.tipo_reporte === 'perdido' ? '🔍' : '✅'}
+                        </div>
+                        <div className="location-info">
+                          <h4>{location.titulo}</h4>
+                          <p className="animal-type">
+                            {location.tipo_animal} • {location.raza_probable}
+                          </p>
+                          <p className="report-date">{formatDate(location.fecha_reporte)}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div className="reports-locked">
+                  <h3>📍 Tu ubicación está activa</h3>
+                  <p>Los reportes están ocultos. Pulsa “Ver reportes” si quieres verlos en el mapa.</p>
+                </div>
+              )}
             </>
           )}
         </div>
 
         {/* Panel de detalles del reporte seleccionado */}
-        {selectedLocation && (
+        {showReports && selectedLocation && (
           <div className="location-popup">
             <div className="popup-header">
               <h3>{selectedLocation.titulo}</h3>

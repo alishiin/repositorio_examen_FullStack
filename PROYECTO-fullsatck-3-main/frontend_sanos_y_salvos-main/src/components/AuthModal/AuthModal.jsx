@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { COMUNAS_RM } from '../../constants/comunas';
+import UiDialog from '../UiDialog/UiDialog';
 import './AuthModal.css';
 
 export default function AuthModal({ isOpen, onClose }) {
@@ -18,6 +19,7 @@ export default function AuthModal({ isOpen, onClose }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [dialog, setDialog] = useState({ open: false, tone: 'info', title: '', message: '' });
 
   const USER_API = import.meta.env.VITE_USER_SERVICE_URL || "http://127.0.0.1:8002"
   const AUTH_API = import.meta.env.VITE_AUTH_SERVICE_URL || "http://127.0.0.1:8001"
@@ -178,7 +180,7 @@ export default function AuthModal({ isOpen, onClose }) {
         
         login(data.user || { nombre: formData.nombre }, data.token);
 
-        alert('¡Bienvenido!');
+        setDialog({ open: true, tone: 'success', title: 'Sesión iniciada', message: '¡Bienvenido! Tu sesión quedó activa.' });
         onClose();
       } else {
         // Registro nuevo
@@ -221,10 +223,10 @@ export default function AuthModal({ isOpen, onClose }) {
         
         if (data.token) {
           login(data, data.token);
-          alert('¡Registro completado! Sesión iniciada.');
+          setDialog({ open: true, tone: 'success', title: 'Registro completado', message: 'Tu sesión quedó iniciada.' });
           onClose();
         } else {
-          alert('¡Registro completado! Por favor inicia sesión.');
+          setDialog({ open: true, tone: 'success', title: 'Registro completado', message: 'Ahora puedes iniciar sesión con tu nueva cuenta.' });
           setIsLogin(true);
         }
         
@@ -424,6 +426,15 @@ export default function AuthModal({ isOpen, onClose }) {
           </p>
         </div>
       </div>
+
+      <UiDialog
+        open={dialog.open}
+        tone={dialog.tone}
+        title={dialog.title}
+        message={dialog.message}
+        confirmLabel="Aceptar"
+        onConfirm={() => setDialog((prev) => ({ ...prev, open: false }))}
+      />
     </div>
   );
 }

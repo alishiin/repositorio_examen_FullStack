@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Sanos y Salvos">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2d4059"/>
+      <stop offset="100%" stop-color="#ff844b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <path d="M184 204c0-36 29-65 65-65s65 29 65 65c0 22-9 41-24 54 32 12 55 42 55 78v38H153v-38c0-36 23-66 55-78-15-13-24-32-24-54Z" fill="#fff" opacity="0.95"/>
+  <circle cx="204" cy="182" r="14" fill="#2d4059"/>
+  <circle cx="308" cy="182" r="14" fill="#2d4059"/>
+</svg>

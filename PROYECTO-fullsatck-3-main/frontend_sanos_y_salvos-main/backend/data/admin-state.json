@@ -20,9 +20,17 @@
       "status": "approved",
       "notes": "",
       "approvedAt": "2026-06-17T08:00:54.133Z"
+    },
+    "7": {
+      "status": "recovered",
+      "notes": "Recuperada en clínica 2",
+      "recoveredAt": "2026-06-24T13:41:42.885Z",
+      "clinicId": "2"
     }
   },
   "deletedReports": [
-    "1"
+    "1",
+    "9",
+    "8"
   ]
 }
