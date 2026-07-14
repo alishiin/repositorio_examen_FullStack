@@ -9,6 +9,9 @@ QUIET=false
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 USER_PATH="$ROOT/PROYECTO-fullsatck-3-main/apis/microservicios_auth_user-main/auth_user_services/UserService"
+export SECRET_KEY='django-insecure-sanos-y-salvos-dev-key'
+export SIMPLE_JWT_SECRET_KEY="$SECRET_KEY"
+export DEBUG=True
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -22,10 +25,17 @@ if [ ! -d ".venv" ]; then
     exit 1
 fi
 
-source .venv/bin/activate
+if [ -x ".venv/Scripts/python.exe" ]; then
+    PYTHON_BIN=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then
+    PYTHON_BIN=".venv/bin/python"
+else
+    echo "ERROR: no se encontro python dentro de .venv"
+    exit 1
+fi
 
 echo -e "${YELLOW}Creando superuser admin...${NC}"
-python manage.py shell << 'PYEOF'
+"$PYTHON_BIN" manage.py shell << 'PYEOF'
 from users.models import User
 User.objects.filter(email='admin@sanosysalvos.cl').delete()
 u = User.objects.create_superuser(
@@ -42,7 +52,7 @@ print(f"  -> creado: {u.email}")
 PYEOF
 
 echo -e "${YELLOW}Creando usuario demo...${NC}"
-python manage.py shell << 'PYEOF'
+"$PYTHON_BIN" manage.py shell << 'PYEOF'
 from users.models import User
 User.objects.filter(email='demo@example.cl').delete()
 u = User.objects.create_user(
@@ -57,8 +67,6 @@ u = User.objects.create_user(
 )
 print(f"  -> creado: {u.email}")
 PYEOF
-
-deactivate
 
 if [ "$QUIET" = true ]; then
     exit 0

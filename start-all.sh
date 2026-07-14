@@ -3,7 +3,7 @@
 # Logs en logs/<servicio>.log
 # Para detener: ./stop-all.sh
 
-set -e
+set -ex
 
 # ---------------------------------------------------------------------
 # Parseo de flags
@@ -44,6 +44,10 @@ PROYECTO="$ROOT/PROYECTO-fullsatck-3-main"
 LOGS="$ROOT/logs"
 PIDS="$ROOT/.pids"
 
+export SECRET_KEY='django-insecure-sanos-y-salvos-dev-key'
+export SIMPLE_JWT_SECRET_KEY="$SECRET_KEY"
+export DEBUG=True
+
 mkdir -p "$LOGS" "$PIDS"
 
 GREEN='\033[0;32m'
@@ -80,6 +84,7 @@ start_django() {
     local path=$2
     local port=$3
     local asgi_module=$4  # opcional: si esta seteado, se usa daphne
+    local python_bin=""
 
     echo -e "${YELLOW}-> Iniciando $name en puerto $port...${NC}"
 
@@ -87,31 +92,40 @@ start_django() {
 
     if [ ! -d ".venv" ]; then
         echo "  Creando venv para $name (primera vez, esto puede tardar)..."
-        if command -v uv &> /dev/null; then
-            uv venv .venv
-            source .venv/bin/activate
-            uv pip install \
-                --index-url https://pypi.ci.artifacts.walmart.com/artifactory/api/pypi/external-pypi/simple \
-                --allow-insecure-host pypi.ci.artifacts.walmart.com \
-                -r requirements.txt > "$LOGS/$name-install.log" 2>&1
-        else
-            python3 -m venv .venv
-            source .venv/bin/activate
-            pip install -r requirements.txt > "$LOGS/$name-install.log" 2>&1
+        python_bin="$(command -v python.exe || command -v py || command -v python3 || command -v python)"
+        if [ -z "$python_bin" ]; then
+            echo "  No se encontro Python para crear el entorno de $name."
+            exit 1
         fi
-    else
-        source .venv/bin/activate
+        "$python_bin" -m venv .venv
     fi
 
-    python manage.py migrate --noinput >> "$LOGS/$name.log" 2>&1
+    if [ -x ".venv/Scripts/python.exe" ]; then
+        python_bin=".venv/Scripts/python.exe"
+    elif [ -x ".venv/bin/python" ]; then
+        python_bin=".venv/bin/python"
+    else
+        python_bin="$(command -v python.exe || command -v py || command -v python3 || command -v python)"
+    fi
+
+    if [ -z "$python_bin" ]; then
+        echo "  No se encontro Python para ejecutar $name."
+        exit 1
+    fi
+
+    if ! "$python_bin" -m pip --version >/dev/null 2>&1; then
+        "$python_bin" -m ensurepip --upgrade >> "$LOGS/$name-install.log" 2>&1
+    fi
+
+    "$python_bin" -m pip install -r requirements.txt >> "$LOGS/$name-install.log" 2>&1
+    "$python_bin" manage.py migrate --noinput >> "$LOGS/$name.log" 2>&1
 
     if [ -n "$asgi_module" ]; then
-        nohup daphne -b 0.0.0.0 -p $port "$asgi_module" >> "$LOGS/$name.log" 2>&1 &
+        nohup "$python_bin" -m daphne -b 0.0.0.0 -p $port "$asgi_module" >> "$LOGS/$name.log" 2>&1 &
     else
-        nohup python manage.py runserver 0.0.0.0:$port >> "$LOGS/$name.log" 2>&1 &
+        nohup "$python_bin" manage.py runserver 0.0.0.0:$port >> "$LOGS/$name.log" 2>&1 &
     fi
     echo $! > "$PIDS/$name.pid"
-    deactivate
     cd "$ROOT"
 }
 

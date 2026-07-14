@@ -10,6 +10,9 @@ QUIET=false
 [ "$1" = "--quiet" ] && QUIET=true
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+export SECRET_KEY='django-insecure-sanos-y-salvos-dev-key'
+export SIMPLE_JWT_SECRET_KEY="$SECRET_KEY"
+export DEBUG=True
 
 SERVICES=(
   "PROYECTO-fullsatck-3-main/apis/microservicios_auth_user-main/auth_user_services/AuthService"
@@ -32,12 +35,20 @@ for service_path in "${SERVICES[@]}"; do
 
   [ "$QUIET" = false ] && echo "[$NAME] creando superuser admin/admin123..."
   cd "$FULL_PATH"
-  # shellcheck disable=SC1091
-  source .venv/bin/activate
+
+  if [ -x ".venv/Scripts/python.exe" ]; then
+    PYTHON_BIN=".venv/Scripts/python.exe"
+  elif [ -x ".venv/bin/python" ]; then
+    PYTHON_BIN=".venv/bin/python"
+  else
+    echo "  [warn] $NAME no tiene python en .venv"
+    cd "$ROOT"
+    continue
+  fi
 
   if [ "$NAME" = "UserService" ]; then
     # UserService tiene custom User con full_name/rut/phone/commune/address requeridos.
-    python manage.py shell <<'PYEOF' || echo "  [warn] fallo $NAME (ver mensaje arriba)"
+    "$PYTHON_BIN" manage.py shell <<'PYEOF' || echo "  [warn] fallo $NAME (ver mensaje arriba)"
 from users.models import User
 User.objects.filter(username='admin').delete()
 User.objects.create_superuser(
@@ -54,7 +65,7 @@ print('  OK')
 PYEOF
   else
     # Resto usa User default de Django.
-    python manage.py shell <<'PYEOF' || echo "  [warn] fallo $NAME (ver mensaje arriba)"
+    "$PYTHON_BIN" manage.py shell <<'PYEOF' || echo "  [warn] fallo $NAME (ver mensaje arriba)"
 from django.contrib.auth import get_user_model
 User = get_user_model()
 User.objects.filter(username='admin').delete()
@@ -63,7 +74,6 @@ print('  OK')
 PYEOF
   fi
 
-  deactivate
   cd "$ROOT"
 done
 
