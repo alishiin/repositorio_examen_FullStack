@@ -47,7 +47,10 @@ const saveAdminState = (state) => {
 };
 
 // Consultar geoservice
-const GEO_SERVICE_URL = process.env.GEO_SERVICE_URL || 'http://localhost:8003/api';
+const GEO_SERVICE_URL = (() => {
+  const rawUrl = (process.env.GEO_SERVICE_URL || 'http://localhost:8003').replace(/\/$/, '');
+  return rawUrl.endsWith('/api') ? rawUrl : `${rawUrl}/api`;
+})();
 
 const fetchFromGeoService = async (endpoint) => {
   try {

@@ -9,6 +9,8 @@ const DEFAULT_PROFILES = {
     name: 'Clínica Veterinaria Sanos y Salvos',
     tagline: 'Atención médica, rescate y seguimiento para mascotas',
     address: 'Av. Apoquindo 1234, Santiago',
+    latitud: -33.4167,
+    longitud: -70.6036,
     phone: '+56 9 4782 0482',
     email: 'contacto@sanosysalvos.cl',
     hours: 'Lun - Vie 08:00 - 20:00 / Sáb 09:00 - 14:00',
@@ -21,6 +23,8 @@ const DEFAULT_PROFILES = {
     name: 'Municipalidad de Providencia',
     tagline: 'Coordinación comunitaria para mascotas perdidas y encontradas',
     address: 'Av. Pedro de Valdivia 963, 7500643 Providencia, Región Metropolitana',
+    latitud: -33.4489,
+    longitud: -70.6693,
     phone: '+56 2 2654 3200',
     email: 'municipalidad@providencia.cl',
     hours: 'Lun - Vie 09:00 - 17:30',
@@ -37,6 +41,29 @@ export default function Veterinarias() {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [createForm, setCreateForm] = useState(null);
+  const [createType, setCreateType] = useState('veterinaria');
+
+  const buildCreateForm = (baseProfile, type) => ({
+    name: baseProfile?.name || '',
+    tagline: baseProfile?.tagline || '',
+    address: baseProfile?.address || '',
+    hours: baseProfile?.hours || '',
+    email: baseProfile?.email || baseProfile?.contact?.email || '',
+    phone: baseProfile?.phone || baseProfile?.contact?.phone || '',
+    logo: baseProfile?.logo || (type === 'municipalidad' ? '🏛️' : '🏥'),
+    services: Array.isArray(baseProfile?.services) ? baseProfile.services.join(', ') : '',
+    description: baseProfile?.description || '',
+    latitud: Number(baseProfile?.latitud ?? (type === 'municipalidad' ? -33.4489 : -33.4167)),
+    longitud: Number(baseProfile?.longitud ?? (type === 'municipalidad' ? -70.6693 : -70.6036)),
+    contact: {
+      email: baseProfile?.contact?.email || baseProfile?.email || '',
+      phone: baseProfile?.contact?.phone || baseProfile?.phone || '',
+    },
+  });
 
   useEffect(() => {
     setIsAdmin(!!localStorage.getItem('adminToken'));
@@ -66,6 +93,13 @@ export default function Veterinarias() {
     setEditing(true);
   };
 
+  const openCreateInstitution = (type) => {
+    setCreateError('');
+    setCreateType(type);
+    setCreateForm(buildCreateForm(profiles[type] || DEFAULT_PROFILES[type], type));
+    setCreateOpen(true);
+  };
+
   const handleSave = async () => {
     if (!form) return;
     setLoading(true);
@@ -82,6 +116,37 @@ export default function Veterinarias() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateVeterinary = async () => {
+    if (!createForm) return;
+
+    if (!createForm.name.trim() || !createForm.address.trim() || Number.isNaN(Number(createForm.latitud)) || Number.isNaN(Number(createForm.longitud))) {
+      setCreateError('Nombre, dirección, latitud y longitud son obligatorios.');
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError('');
+
+    try {
+      const response = institutionProfileClient.createLocalInstitutionProfile(createType, {
+        ...createForm,
+        services: createForm.services
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
+        latitud: Number(createForm.latitud),
+        longitud: Number(createForm.longitud),
+      });
+
+      if (response?.success) {
+        setCreateOpen(false);
+        setCreateForm(null);
+      }
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -114,7 +179,13 @@ export default function Veterinarias() {
         </div>
 
         <div className="vet-actions">
-          <button type="button" className="btn-call" onClick={() => setActiveType(type)}>Ver perfil</button>
+          <button
+            type="button"
+            className="btn-call"
+            onClick={() => openCreateInstitution(type)}
+          >
+            {type === 'veterinaria' ? 'Crear veterinaria' : 'Crear municipalidad'}
+          </button>
           {isAdmin && <button type="button" className="btn-email" onClick={openEditor}>Editar</button>}
         </div>
       </div>
@@ -195,6 +266,69 @@ export default function Veterinarias() {
           )}
         </UiDialog>
       )}
+
+      <UiDialog
+        open={createOpen}
+          title={createType === 'municipalidad' ? 'Crear municipalidad' : 'Crear veterinaria'}
+          message={createType === 'municipalidad'
+            ? 'La municipalidad se guardará solo en este navegador y luego aparecerá en el mapa junto a la municipalidad original.'
+            : 'La veterinaria se guardará solo en este navegador y luego aparecerá en el mapa junto a la veterinaria original.'}
+          confirmLabel={createLoading ? 'Creando...' : (createType === 'municipalidad' ? 'Crear municipalidad' : 'Crear veterinaria')}
+        cancelLabel="Cancelar"
+        showCancel
+        onCancel={() => setCreateOpen(false)}
+        onConfirm={handleCreateVeterinary}
+      >
+        {createForm && (
+          <div className="institution-form-grid">
+            {createError && <div className="veterinarias-notice full-width"><p>{createError}</p></div>}
+            <label>
+              Nombre
+              <input value={createForm.name} onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })} />
+            </label>
+            <label>
+              Eslogan
+              <input value={createForm.tagline} onChange={(e) => setCreateForm({ ...createForm, tagline: e.target.value })} />
+            </label>
+            <label>
+              Dirección
+              <input value={createForm.address} onChange={(e) => setCreateForm({ ...createForm, address: e.target.value })} />
+            </label>
+            <label>
+              Horario
+              <input value={createForm.hours} onChange={(e) => setCreateForm({ ...createForm, hours: e.target.value })} />
+            </label>
+            <label>
+              Email
+              <input value={createForm.email} onChange={(e) => setCreateForm({ ...createForm, email: e.target.value, contact: { ...createForm.contact, email: e.target.value } })} />
+            </label>
+            <label>
+              Teléfono
+              <input value={createForm.phone} onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value, contact: { ...createForm.contact, phone: e.target.value } })} />
+            </label>
+            <label>
+              Latitud
+              <input type="number" step="0.0001" value={createForm.latitud} onChange={(e) => setCreateForm({ ...createForm, latitud: e.target.value })} />
+            </label>
+            <label>
+              Longitud
+              <input type="number" step="0.0001" value={createForm.longitud} onChange={(e) => setCreateForm({ ...createForm, longitud: e.target.value })} />
+            </label>
+            <label>
+              Logo o emoji
+              <input value={createForm.logo} onChange={(e) => setCreateForm({ ...createForm, logo: e.target.value })} />
+            </label>
+            <label>
+              Servicios
+              <input value={createForm.services} onChange={(e) => setCreateForm({ ...createForm, services: e.target.value })} />
+            </label>
+            <label className="full-width">
+              Descripción
+              <textarea rows="4" value={createForm.description} onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })} />
+            </label>
+          </div>
+        )}
+      </UiDialog>
     </section>
   );
 }

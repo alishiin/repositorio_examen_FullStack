@@ -4,7 +4,10 @@ import express from 'express';
 import httpProxy from 'http-proxy';
 
 const router = express.Router();
-const GEO_SERVICE_URL = process.env.GEO_SERVICE_URL || 'http://localhost:8003';
+const GEO_SERVICE_URL = (() => {
+  const rawUrl = (process.env.GEO_SERVICE_URL || 'http://localhost:8003').replace(/\/$/, '');
+  return rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl;
+})();
 
 const proxy = httpProxy.createProxyServer({
   changeOrigin: true,

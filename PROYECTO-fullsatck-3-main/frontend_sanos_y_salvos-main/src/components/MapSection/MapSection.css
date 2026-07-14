@@ -115,6 +115,8 @@
   display: flex;
   flex-direction: column;
   transition: transform 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .map-sidebar.closed {
@@ -146,6 +148,7 @@
   padding: 20px;
   background: #F7F9FC;
   border-bottom: 1px solid #E8ECF0;
+  flex-shrink: 0;
 }
 
 .geo-btn {
@@ -194,13 +197,6 @@
   margin: 0 0 8px;
   font-size: 14px;
   font-weight: 700;
-}
-
-.reports-locked p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: #5a6575;
 }
 
 .sidebar-filters h3 {

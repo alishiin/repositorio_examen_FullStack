@@ -10,6 +10,25 @@ const MATCH_SERVICE_URL = import.meta.env.VITE_MATCH_SERVICE_URL || `${BFF_URL}/
 const MEDIA_SERVICE_URL = import.meta.env.VITE_MEDIA_SERVICE_URL || `${BFF_URL}/api/media`;
 const NOTIFICATION_SERVICE_URL = import.meta.env.VITE_NOTIFICATION_SERVICE_URL || `${BFF_URL}/api/notifications`;
 const PROFILE_SERVICE_URL = import.meta.env.VITE_PROFILE_SERVICE_URL || `${BFF_URL}/api/profiles`;
+const LOCAL_INSTITUTION_PROFILES_KEY = 'localInstitutionProfiles';
+
+const readLocalInstitutionProfiles = () => {
+  if (typeof window === 'undefined') return [];
+
+  try {
+    const stored = localStorage.getItem(LOCAL_INSTITUTION_PROFILES_KEY);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.error('❌ Error leyendo perfiles institucionales locales:', error);
+    return [];
+  }
+};
+
+const writeLocalInstitutionProfiles = (profiles) => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(LOCAL_INSTITUTION_PROFILES_KEY, JSON.stringify(profiles));
+};
 
 export const geoServiceClient = {
   async getNearbySpontaneous(latitude, longitude, radiusKm = 10, reportType = 'ambos') {
@@ -424,6 +443,56 @@ export const institutionProfileClient = {
       throw new Error(errorData.message || 'Error obteniendo perfil institucional');
     }
     return response.json();
+  },
+
+  getLocalProfiles(type) {
+    const profiles = readLocalInstitutionProfiles();
+    return type ? profiles.filter((profile) => profile.type === type) : profiles;
+  },
+
+  createLocalInstitutionProfile(type, profileData) {
+    const currentProfiles = readLocalInstitutionProfiles();
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).slice(2, 8);
+
+    const isMunicipalidad = type === 'municipalidad';
+
+    const nextProfile = {
+      id: `local_${type}_${timestamp}_${random}`,
+      source: 'local',
+      type,
+      name: profileData.name || (isMunicipalidad ? 'Nueva municipalidad' : 'Nueva veterinaria'),
+      tagline: profileData.tagline || '',
+      logo: profileData.logo || (isMunicipalidad ? '🏛️' : '🏥'),
+      contact: {
+        email: profileData.contact?.email || profileData.email || '',
+        phone: profileData.contact?.phone || profileData.phone || '',
+        whatsapp: profileData.contact?.whatsapp || profileData.phone || '',
+      },
+      address: profileData.address || '',
+      latitud: Number(profileData.latitud),
+      longitud: Number(profileData.longitud),
+      hours: profileData.hours || '',
+      description: profileData.description || '',
+      services: Array.isArray(profileData.services) ? profileData.services : [],
+      social: profileData.social || {},
+    };
+
+    const nextProfiles = [...currentProfiles, nextProfile];
+    writeLocalInstitutionProfiles(nextProfiles);
+
+    return {
+      success: true,
+      data: nextProfile,
+    };
+  },
+
+  createLocalVeterinaria(profileData) {
+    return this.createLocalInstitutionProfile('veterinaria', profileData);
+  },
+
+  createLocalMunicipalidad(profileData) {
+    return this.createLocalInstitutionProfile('municipalidad', profileData);
   },
 
   async updateProfile(profileType, profileData) {

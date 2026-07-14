@@ -3,6 +3,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapSection.css';
 import ReportDetailModal from '../ReportDetailModal/ReportDetailModal';
 import { useAuth } from '../../hooks/useAuth';
+import { institutionProfileClient } from '../../services/api';
 import { resolveImageUrl } from '../../utils/imageUrl';
 
 // Importar mapboxgl de forma compatible con Vite
@@ -14,18 +15,26 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZmVyZ3VpbjIzIiwiYSI6ImNtbjYzOXJ2YzAxbWMyc3Ezb
 
 export default function MapSection({ setShowMap }) {
   const [locations, setLocations] = useState([]);
+  const [veterinarias, setVeterinarias] = useState([]);
+  const [municipalidades, setMunicipalidades] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedVeterinaria, setSelectedVeterinaria] = useState(null);
+  const [selectedMunicipalidad, setSelectedMunicipalidad] = useState(null);
   const [loading, setLoading] = useState(true);
   const [geoStatus, setGeoStatus] = useState('');
   const [userLocation, setUserLocation] = useState(null);
   const [filtro, setFiltro] = useState('ambos');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showReports, setShowReports] = useState(false);
+  const [showVeterinarias, setShowVeterinarias] = useState(false);
+  const [showMunicipalidades, setShowMunicipalidades] = useState(false);
   const [modalReport, setModalReport] = useState(null);
   const { user } = useAuth();
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef({});
+  const veterinaryMarkers = useRef({});
+  const municipalityMarkers = useRef({});
   const userMarker = useRef(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -48,6 +57,21 @@ export default function MapSection({ setShowMap }) {
   useEffect(() => {
     fetchLocations();
   }, [filtro]);
+
+  useEffect(() => {
+    const handleReportCreated = () => {
+      setShowReports(true);
+      fetchLocations();
+    };
+
+    window.addEventListener('sanos-y-salvos:report-created', handleReportCreated);
+    return () => window.removeEventListener('sanos-y-salvos:report-created', handleReportCreated);
+  }, [filtro]);
+
+  useEffect(() => {
+    fetchVeterinarias();
+    fetchMunicipalidades();
+  }, []);
 
   useEffect(() => {
     locateUser();
@@ -139,51 +163,79 @@ export default function MapSection({ setShowMap }) {
       
       console.log(`📌 Total reportes: ${reportes.length}`);
       
+      setLocations(reportes);
+      setSelectedLocation(null);
+
       if (reportes.length > 0) {
-        setLocations(reportes);
-        setSelectedLocation(null);
+        setGeoStatus('Reportes cargados correctamente.');
         console.log('✅ Datos REALES cargados correctamente');
       } else {
+        setGeoStatus('No hay reportes disponibles para mostrar.');
         console.warn('⚠️ No hay reportes en la API');
-        throw new Error('No hay reportes disponibles');
       }
     } catch (error) {
       console.error('❌ Error crítico:', error.message);
-      console.log('📌 Mostrando fallback de demo ...');
-      
-      // FALLBACK - Solo mostrar si la API falla
       setSelectedLocation(null);
-      const demoLocations = [
-        {
-          id: 1,
-          latitud: -33.8688,
-          longitud: -71.2093,
-          titulo: 'Perro Perdido - Golden Retriever',
-          descripcion: 'Se perdió en Providencia. Responde por Toby.',
-          tipo_reporte: 'perdido',
-          tipo_animal: 'perro',
-          raza_probable: 'Golden Retriever',
-          color: 'Dorado',
-          tamaño: 'Grande',
-          fecha_reporte: '2026-05-05'
-        },
-        {
-          id: 2,
-          latitud: -33.8736,
-          longitud: -71.1873,
-          titulo: 'Gato Encontrado - Blanco y Negro',
-          descripcion: 'Encontrado en Las Condes.',
-          tipo_reporte: 'encontrado',
-          tipo_animal: 'gato',
-          raza_probable: 'Criollo',
-          color: 'Blanco y Negro',
-          tamaño: 'Pequeño',
-          fecha_reporte: '2026-05-07'
-        }
-      ];
-      setLocations(demoLocations);
+      setLocations([]);
+      setGeoStatus('No se pudieron cargar los reportes. Verifica que el BFF y GeoService estén activos.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const normalizeInstitution = (profile) => {
+    const contact = profile.contact || {};
+    const latitud = profile.latitud ?? profile.latitude ?? profile.location?.lat ?? profile.location?.latitud;
+    const longitud = profile.longitud ?? profile.longitude ?? profile.location?.lng ?? profile.location?.longitud;
+
+    return {
+      id: profile.id || profile.type || profile.name,
+      type: profile.type,
+      name: profile.name,
+      titulo: profile.name,
+      descripcion: profile.description || profile.tagline || '',
+      tagline: profile.tagline || '',
+      address: profile.address || '',
+      phone: contact.phone || profile.phone || '',
+      email: contact.email || profile.email || '',
+      hours: profile.hours || '',
+      logo: profile.type === 'municipalidad' ? '🏛️' : '❤️',
+      latitud: Number(latitud),
+      longitud: Number(longitud),
+      services: profile.services || [],
+    };
+  };
+
+  const loadInstitutionGroup = async (type) => {
+    const remoteProfile = await institutionProfileClient.getProfile(type).catch(() => null);
+    const localProfiles = institutionProfileClient.getLocalProfiles(type);
+    return [remoteProfile?.success ? remoteProfile.data : null, ...localProfiles]
+      .filter(Boolean)
+      .map(normalizeInstitution)
+      .filter((institution) => Number.isFinite(institution.latitud) && Number.isFinite(institution.longitud));
+  };
+
+  const fetchVeterinarias = async () => {
+    try {
+      const nextVeterinarias = await loadInstitutionGroup('veterinaria');
+      setVeterinarias(nextVeterinarias);
+      setSelectedVeterinaria(null);
+    } catch (error) {
+      console.error('❌ Error cargando veterinarias:', error.message);
+      setVeterinarias([]);
+      setSelectedVeterinaria(null);
+    }
+  };
+
+  const fetchMunicipalidades = async () => {
+    try {
+      const nextMunicipalidades = await loadInstitutionGroup('municipalidad');
+      setMunicipalidades(nextMunicipalidades);
+      setSelectedMunicipalidad(null);
+    } catch (error) {
+      console.error('❌ Error cargando municipalidades:', error.message);
+      setMunicipalidades([]);
+      setSelectedMunicipalidad(null);
     }
   };
 
@@ -247,6 +299,82 @@ export default function MapSection({ setShowMap }) {
 
   }, [locations, selectedLocation, showReports]);
 
+  useEffect(() => {
+    if (!map.current || !showVeterinarias || veterinarias.length === 0) {
+      Object.values(veterinaryMarkers.current).forEach((marker) => marker.remove());
+      veterinaryMarkers.current = {};
+      return;
+    }
+
+    Object.values(veterinaryMarkers.current).forEach((marker) => marker.remove());
+    veterinaryMarkers.current = {};
+
+    veterinarias.forEach((institution) => {
+      const el = document.createElement('div');
+      el.className = 'mapbox-marker institution-marker';
+      el.innerHTML = '❤️';
+      el.style.fontSize = selectedVeterinaria?.id === institution.id ? '34px' : '26px';
+      el.style.cursor = 'pointer';
+      el.style.filter = selectedVeterinaria?.id === institution.id
+        ? 'drop-shadow(0 0 10px rgba(220,20,60,0.65))'
+        : 'drop-shadow(0 0 4px rgba(220,20,60,0.35))';
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([institution.longitud, institution.latitud])
+        .addTo(map.current);
+
+      el.addEventListener('click', () => {
+        setSelectedVeterinaria(institution);
+        map.current.flyTo({
+          center: [institution.longitud, institution.latitud],
+          zoom: 15,
+          duration: 1000,
+        });
+      });
+
+      veterinaryMarkers.current[institution.id] = marker;
+    });
+
+  }, [veterinarias, selectedVeterinaria, showVeterinarias]);
+
+  useEffect(() => {
+    if (!map.current || !showMunicipalidades || municipalidades.length === 0) {
+      Object.values(municipalityMarkers.current).forEach((marker) => marker.remove());
+      municipalityMarkers.current = {};
+      return;
+    }
+
+    Object.values(municipalityMarkers.current).forEach((marker) => marker.remove());
+    municipalityMarkers.current = {};
+
+    municipalidades.forEach((institution) => {
+      const el = document.createElement('div');
+      el.className = 'mapbox-marker institution-marker';
+      el.innerHTML = '🏛️';
+      el.style.fontSize = selectedMunicipalidad?.id === institution.id ? '34px' : '26px';
+      el.style.cursor = 'pointer';
+      el.style.filter = selectedMunicipalidad?.id === institution.id
+        ? 'drop-shadow(0 0 10px rgba(45,64,89,0.65))'
+        : 'drop-shadow(0 0 4px rgba(45,64,89,0.35))';
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([institution.longitud, institution.latitud])
+        .addTo(map.current);
+
+      el.addEventListener('click', () => {
+        setSelectedMunicipalidad(institution);
+        map.current.flyTo({
+          center: [institution.longitud, institution.latitud],
+          zoom: 15,
+          duration: 1000,
+        });
+      });
+
+      municipalityMarkers.current[institution.id] = marker;
+    });
+
+  }, [municipalidades, selectedMunicipalidad, showMunicipalidades]);
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
@@ -307,6 +435,22 @@ export default function MapSection({ setShowMap }) {
                   {showReports ? '🙈 Ocultar reportes' : '👁️ Ver reportes'}
                 </button>
 
+                <button
+                  type="button"
+                  className="geo-btn geo-btn-ghost"
+                  onClick={() => setShowVeterinarias((current) => !current)}
+                >
+                  {showVeterinarias ? '🙈 Ocultar veterinarias' : '❤️ Ver veterinarias'}
+                </button>
+
+                <button
+                  type="button"
+                  className="geo-btn geo-btn-ghost"
+                  onClick={() => setShowMunicipalidades((current) => !current)}
+                >
+                  {showMunicipalidades ? '🙈 Ocultar municipalidades' : '🏛️ Ver municipalidades'}
+                </button>
+
                 {geoStatus && <p className="geo-status">{geoStatus}</p>}
                 
                 <div className="filter-group">
@@ -364,7 +508,74 @@ export default function MapSection({ setShowMap }) {
               ) : (
                 <div className="reports-locked">
                   <h3>📍 Tu ubicación está activa</h3>
-                  <p>Los reportes están ocultos. Pulsa “Ver reportes” si quieres verlos en el mapa.</p>
+                </div>
+              )}
+
+              {showVeterinarias ? (
+                <>
+                  <h3 className="reports-title">❤️ Veterinarias</h3>
+                  <div className="locations-list">
+                    {veterinarias.map((institution) => (
+                      <div
+                        key={institution.id}
+                        className={`location-item ${selectedVeterinaria?.id === institution.id ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedVeterinaria(institution);
+                          map.current?.flyTo({
+                            center: [institution.longitud, institution.latitud],
+                            zoom: 15,
+                            duration: 1000,
+                          });
+                        }}
+                        style={{ borderLeftColor: '#ff4d6d' }}
+                      >
+                        <div className="location-icon">❤️</div>
+                        <div className="location-info">
+                          <h4>{institution.name}</h4>
+                          <p className="animal-type">Veterinaria</p>
+                          <p className="report-date">{institution.address}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="reports-locked">
+                  <h3>❤️ Instituciones disponibles</h3>
+                </div>
+              )}
+
+              {showMunicipalidades ? (
+                <>
+                  <h3 className="reports-title">🏛️ Municipalidades</h3>
+                  <div className="locations-list">
+                    {municipalidades.map((institution) => (
+                      <div
+                        key={institution.id}
+                        className={`location-item ${selectedMunicipalidad?.id === institution.id ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedMunicipalidad(institution);
+                          map.current?.flyTo({
+                            center: [institution.longitud, institution.latitud],
+                            zoom: 15,
+                            duration: 1000,
+                          });
+                        }}
+                        style={{ borderLeftColor: '#2D4059' }}
+                      >
+                        <div className="location-icon">🏛️</div>
+                        <div className="location-info">
+                          <h4>{institution.name}</h4>
+                          <p className="animal-type">Municipalidad</p>
+                          <p className="report-date">{institution.address}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="reports-locked">
+                  <h3>🏛️ Instituciones municipales</h3>
                 </div>
               )}
             </>
@@ -443,6 +654,106 @@ export default function MapSection({ setShowMap }) {
               onClick={() => setModalReport(selectedLocation)}
             >
               Ver detalles, chat y coincidencias
+            </button>
+          </div>
+        )}
+
+        {showVeterinarias && selectedVeterinaria && (
+          <div className="location-popup">
+            <div className="popup-header">
+              <h3>{selectedVeterinaria.titulo}</h3>
+              <span className="badge badge-encontrado">❤️ Veterinaria</span>
+            </div>
+
+            <div className="popup-row">
+              <span className="icon"></span>
+              <span>{selectedVeterinaria.descripcion}</span>
+            </div>
+
+            <div className="popup-grid">
+              <div className="popup-item">
+                <span className="label">Dirección</span>
+                <span className="value">{selectedVeterinaria.address}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Horario</span>
+                <span className="value">{selectedVeterinaria.hours || 'N/A'}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Teléfono</span>
+                <span className="value">{selectedVeterinaria.phone || 'N/A'}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Email</span>
+                <span className="value">{selectedVeterinaria.email || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="popup-row">
+              <span className="icon">📍</span>
+              <span>{selectedVeterinaria.latitud.toFixed(4)}, {selectedVeterinaria.longitud.toFixed(4)}</span>
+            </div>
+
+            <button
+              className="google-maps-btn"
+              onClick={() => {
+                window.open(
+                  `https://www.google.com/maps/search/${selectedVeterinaria.latitud},${selectedVeterinaria.longitud}`,
+                  '_blank'
+                );
+              }}
+            >
+              Ver en Google Maps
+            </button>
+          </div>
+        )}
+
+        {showMunicipalidades && selectedMunicipalidad && (
+          <div className="location-popup">
+            <div className="popup-header">
+              <h3>{selectedMunicipalidad.titulo}</h3>
+              <span className="badge badge-encontrado">🏛️ Municipalidad</span>
+            </div>
+
+            <div className="popup-row">
+              <span className="icon"></span>
+              <span>{selectedMunicipalidad.descripcion}</span>
+            </div>
+
+            <div className="popup-grid">
+              <div className="popup-item">
+                <span className="label">Dirección</span>
+                <span className="value">{selectedMunicipalidad.address}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Horario</span>
+                <span className="value">{selectedMunicipalidad.hours || 'N/A'}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Teléfono</span>
+                <span className="value">{selectedMunicipalidad.phone || 'N/A'}</span>
+              </div>
+              <div className="popup-item">
+                <span className="label">Email</span>
+                <span className="value">{selectedMunicipalidad.email || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="popup-row">
+              <span className="icon">📍</span>
+              <span>{selectedMunicipalidad.latitud.toFixed(4)}, {selectedMunicipalidad.longitud.toFixed(4)}</span>
+            </div>
+
+            <button
+              className="google-maps-btn"
+              onClick={() => {
+                window.open(
+                  `https://www.google.com/maps/search/${selectedMunicipalidad.latitud},${selectedMunicipalidad.longitud}`,
+                  '_blank'
+                );
+              }}
+            >
+              Ver en Google Maps
             </button>
           </div>
         )}

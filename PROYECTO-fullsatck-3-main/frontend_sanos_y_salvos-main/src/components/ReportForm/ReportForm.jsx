@@ -145,6 +145,13 @@ export function ReportForm({ onSuccess }) {
       setImageFile(null);
       setImagePreview(null);
 
+      window.dispatchEvent(new CustomEvent('sanos-y-salvos:report-created', {
+        detail: {
+          reporte_id: newReportId,
+          tipo_reporte: formData.tipo_reporte,
+        },
+      }));
+
       // Callback si existe
       if (onSuccess) {
         setTimeout(onSuccess, 2000);
